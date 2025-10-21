@@ -18,10 +18,6 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/master.xml
 
-  web:
-    resources:
-      add-mappings: false
-
 security:
   app-user:
     username: ${APP_USERNAME:app_user}
@@ -31,7 +27,4 @@ server:
   port: 9001
 
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health
+  endpoints.web.exposure.include: health,info

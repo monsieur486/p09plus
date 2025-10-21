@@ -1,7 +1,7 @@
 package com.mr486.mspatients.dto;
 
 import com.mr486.mspatients.model.Patient;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -11,19 +11,16 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class PatientForm {
-  @NotEmpty(message = "First name cannot be empty")
-  @NotNull(message = "First name cannot be null")
+  @NotBlank(message = "Le prénom ne peut pas être vide")
   private String firstName;
 
-  @NotEmpty(message = "Last name cannot be empty")
-  @NotNull(message = "Last name cannot be null")
+  @NotBlank(message = "Le nom de famille ne peut pas être vide")
   private String lastName;
 
-  @NotNull(message = "Birth date cannot be null")
+  @NotNull(message = "La date de naissance ne peut pas être nulle")
   private LocalDate birthDate;
 
-  @NotEmpty(message = "Gender cannot be empty")
-  @NotNull(message = "Gender cannot be null")
+  @NotBlank(message = "Le genre ne peut pas être vide")
   private String gender;
 
   private String postalAddress;

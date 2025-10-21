@@ -25,9 +25,8 @@ public class PatientController {
 
   @GetMapping(value = "/{id}", produces = "application/json")
   public ResponseEntity<Patient> getPatient(@PathVariable Long id) {
-    return patientService.findById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+    Patient patient = patientService.findById(id);
+    return ResponseEntity.ok(patient);
   }
 
   @PostMapping(value = "", consumes = "application/json", produces = "application/json")
@@ -36,10 +35,9 @@ public class PatientController {
     return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
   }
 
-  @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<Patient> updatePatient(@PathVariable Long id, @Valid @RequestBody PatientForm patientForm) {
-    return patientService.updatePatient(id, patientForm)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+  @PutMapping(value = "/{id}", produces = "application/json")
+  public ResponseEntity<Patient> update(@PathVariable Long id, @Valid @RequestBody PatientForm form) {
+    Patient updated = patientService.updatePatient(id, form);
+    return ResponseEntity.ok(updated);
   }
 }

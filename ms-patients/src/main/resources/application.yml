@@ -24,7 +24,7 @@ security:
     password: ${APP_PASSWORD:app_password}
 
 server:
-  port: 9001
+  port: 9100
 
 management:
   endpoints.web.exposure.include: health,info

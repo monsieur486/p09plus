@@ -18,10 +18,20 @@ mongock:
   migration-scan-package:
     - com.mr486.msnotes.dbchangelogs
 
-server:
-  port: 9002
-
 security:
   app-user:
     username: ${APP_USERNAME:app_user}
     password: ${APP_PASSWORD:app_password}
+
+server:
+  port: 9200
+
+management:
+  endpoints.web.exposure.include: health,info
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    registerWithEureka: true
+    fetchRegistry: true

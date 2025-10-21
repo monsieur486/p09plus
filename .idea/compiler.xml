@@ -3,7 +3,7 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for ms-notes" enabled="true">
+      <profile name="Annotation profile for ms-risque" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -13,6 +13,7 @@
         <module name="ms-eureka" />
         <module name="ms-notes" />
         <module name="ms-patients" />
+        <module name="ms-risque" />
         <module name="ms-webclient" />
         <module name="ms-gateway" />
       </profile>
@@ -24,6 +25,7 @@
       <module name="ms-gateway" options="-parameters" />
       <module name="ms-notes" options="-parameters" />
       <module name="ms-patients" options="-parameters" />
+      <module name="ms-risque" options="-parameters" />
       <module name="ms-webclient" options="-parameters" />
     </option>
   </component>

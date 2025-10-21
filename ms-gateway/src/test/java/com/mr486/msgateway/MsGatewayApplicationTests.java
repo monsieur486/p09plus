@@ -1,10 +1,10 @@
-package com.mr486.mseureka;
+package com.mr486.msgateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MsEurekaApplicationTests {
+class MsGatewayApplicationTests {
 
   @Test
   void contextLoads() {

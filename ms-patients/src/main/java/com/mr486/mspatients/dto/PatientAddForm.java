@@ -1,6 +1,5 @@
 package com.mr486.mspatients.dto;
 
-import com.mr486.mspatients.model.Patient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -10,7 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-public class PatientForm {
+public class PatientAddForm {
   @NotBlank(message = "Le prénom ne peut pas être vide")
   private String firstName;
 
@@ -25,15 +24,4 @@ public class PatientForm {
 
   private String postalAddress;
   private String phoneNumber;
-
-  public Patient toEntity() {
-    Patient patient = new Patient();
-    patient.setFirstName(firstName);
-    patient.setLastName(lastName);
-    patient.setBirthDate(birthDate);
-    patient.setGender(gender);
-    patient.setPostalAddress(postalAddress);
-    patient.setPhoneNumber(phoneNumber);
-    return patient;
-  }
 }

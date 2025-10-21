@@ -1,6 +1,10 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
+
   application:
     name: ms-gateway
+
   cloud:
     gateway:
       server:
@@ -13,19 +17,15 @@ spring:
                 - name: StripPrefix
                   args:
                     parts: 1
+server:
+  port: 9000
+
+management:
+  endpoints.web.exposure.include: health,info,gateway
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
+      defaultZone: http://localhost:8761/eureka
     registerWithEureka: true
     fetchRegistry: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    gateway:
-      access: unrestricted

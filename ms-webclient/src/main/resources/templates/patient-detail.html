@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang="fr"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fiche patient</title>
+    <div th:replace="~{fragments/header :: header-css}"></div>
+</head>
+<body>
+<div th:replace="~{fragments/menu :: menu}"></div>
+<div class="container">
+    <div class="starter-template">
+        <h5>Fiche patient
+            <a th:href="@{/app/dashboard/{id}/update(id=${patient.id})}">✍️ modifier</a>
+        </h5>
+        <p>Prénom : <span th:text="${patient.firstName}"></span></p>
+        <p>Nom : <span th:text="${patient.lastName}"></span></p>
+        <p>Date de naissance : <span th:text="${#temporals.format(patient.birthDate, 'dd/MM/yyyy')}"></span></p>
+        <p>Genre : <span th:text="${patient.gender}"></span></p>
+        <p>Adresse : <span th:text="${patient.postalAddress}"></span></p>
+        <p>Téléphone : <span th:text="${patient.phoneNumber}"></span></p>
+        <p><a th:href="@{'/app/dashboard/' + ${patient.id} + '/notes'}">📝 Notes</a></p>
+        <p><a th:href="@{'/app/dashboard/' + ${patient.id} + '/evaluation'}">⚠️ Evaluation rique</a></p>
+        <p><a th:href="@{/app/dashboard}">Retout à la liste des patients</a></p>
+    </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

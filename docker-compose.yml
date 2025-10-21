@@ -1,21 +1,28 @@
 services:
 
-    patients-db:
-        image: postgres:16
-        container_name: patients-db
-        environment:
-            POSTGRES_DB: ${POSTGRES_DB:-patientsdb}
-            POSTGRES_USER: ${POSTGRES_USER:-patient_user}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-patient_pass}
-        ports:
-            - "5432:5432"
-        volumes:
-            - db_data:/var/lib/postgresql/data
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-patient_user} -d ${POSTGRES_DB:-patientsdb}"]
-            interval: 5s
-            timeout: 3s
-            retries: 10
+  patients-db:
+    image: postgres:16
+    container_name: patients-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-patientsdb}
+      POSTGRES_USER: ${POSTGRES_USER:-patient_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-patient_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  notes-db:
+    image: mongo:8.0.14
+    container_name: notes-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-notes_user}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-notes_password}
+    ports:
+      - "27017:27017"
+    volumes:
+      - database-data:/data/db
 
 volumes:
   db_data:
+  database-data:

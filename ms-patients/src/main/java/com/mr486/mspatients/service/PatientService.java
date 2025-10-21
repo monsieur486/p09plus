@@ -1,6 +1,7 @@
 package com.mr486.mspatients.service;
 
-import com.mr486.mspatients.dto.PatientForm;
+import com.mr486.mspatients.dto.PatientAddForm;
+import com.mr486.mspatients.dto.PatientUpdateForm;
 import com.mr486.mspatients.exeption.DuplicateException;
 import com.mr486.mspatients.exeption.NotFoundException;
 import com.mr486.mspatients.model.Patient;
@@ -27,31 +28,32 @@ public class PatientService {
             .orElseThrow(() -> new NotFoundException("Aucun patient avec l'id: " + id));
   }
 
-  public Patient savePatient(PatientForm patientForm) {
-    Patient patient = patientForm.toEntity();
+  public Patient savePatient(PatientAddForm patientAddForm) {
+    Patient patient = new Patient();
+    patient.setFirstName(patientAddForm.getFirstName());
+    patient.setLastName(patientAddForm.getLastName());
+    patient.setBirthDate(patientAddForm.getBirthDate());
+    patient.setGender(patientAddForm.getGender());
+    patient.setPostalAddress(patientAddForm.getPostalAddress());
+    patient.setPhoneNumber(patientAddForm.getPhoneNumber());
     if (patientExistsByInfos(
-            patientForm.getLastName(),
-            patientForm.getFirstName(),
-            patientForm.getBirthDate(),
-            patientForm.getGender())) {
+            patientAddForm.getLastName(),
+            patientAddForm.getFirstName(),
+            patientAddForm.getBirthDate(),
+            patientAddForm.getGender())) {
       throw new DuplicateException("Le patient existe déjà dans la base de données.");
     }
     return patientRepository.save(patient);
   }
 
-  public Patient updatePatient(Long id, PatientForm patientForm) {
+  public Patient updatePatient(Long id, PatientUpdateForm patientUpdateForm) {
     Patient existing = patientRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Aucun patient avec l'id: " + id));
 
-    existing.setFirstName(patientForm.getFirstName());
-    existing.setLastName(patientForm.getLastName());
-    existing.setBirthDate(patientForm.getBirthDate());
-    existing.setGender(patientForm.getGender());
-    existing.setPostalAddress(patientForm.getPostalAddress());
-    existing.setPhoneNumber(patientForm.getPhoneNumber());
+    existing.setPostalAddress(patientUpdateForm.getPostalAddress());
+    existing.setPhoneNumber(patientUpdateForm.getPhoneNumber());
 
     return patientRepository.save(existing);
-
 
   }
 

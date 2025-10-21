@@ -1,10 +1,10 @@
-package com.mr486.mseureka;
+package com.mr486.mswebclient;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MsEurekaApplicationTests {
+class MsWebclientApplicationTests {
 
   @Test
   void contextLoads() {

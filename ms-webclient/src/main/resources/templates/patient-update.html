@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html lang="fr"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mise à jour fiche patient</title>
+    <div th:replace="~{fragments/header :: header-css}"></div>
+</head>
+<body>
+<div th:replace="~{fragments/menu :: menu}"></div>
+<div class="container">
+    <div class="starter-template">
+        <h5>Mise à jour fiche patient</h5>
+        <form method="post" th:action="@{/app/dashboard/{id}/update(id=${patient.id})}" th:object="${patient}">
+            <input th:field="*{id}" type="hidden"/>
+            <p>Prénom : <span th:text="*{firstName}"></span></p>
+            <p>Nom : <span th:text="*{lastName}"></span></p>
+            <p>Date de naissance : <span th:text="*{#temporals.format(birthDate, 'dd/MM/yyyy')}"></span></p>
+            <p>Genre : <span th:text="*{gender}"></span></p>
+
+            <label for="address">Adresse :</label>
+            <input id="address" th:field="*{postalAddress}" type="text"/>
+            <br/>
+            <label for="phoneNumber">Numéro de téléphone :</label>
+            <input id="phoneNumber" th:field="*{phoneNumber}" type="text"/>
+            <br/>
+            <button type="submit">Mettrte à jour</button>
+        </form>
+        <p><a th:href="@{/app/dashboard/{id}(id=${patient.id})}">Retour à la fiche patient</a></p>
+        <p><a th:href="@{/app/dashboard}">Retout à la liste des patients</a></p>
+    </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

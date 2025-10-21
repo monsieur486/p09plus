@@ -5,6 +5,10 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/ms-patients/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-eureka/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-webclient/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-notes/pom.xml" />
       </list>
     </option>
   </component>

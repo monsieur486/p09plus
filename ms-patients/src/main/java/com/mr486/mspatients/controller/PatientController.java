@@ -1,6 +1,7 @@
 package com.mr486.mspatients.controller;
 
-import com.mr486.mspatients.dto.PatientForm;
+import com.mr486.mspatients.dto.PatientAddForm;
+import com.mr486.mspatients.dto.PatientUpdateForm;
 import com.mr486.mspatients.model.Patient;
 import com.mr486.mspatients.service.PatientService;
 import jakarta.validation.Valid;
@@ -30,13 +31,13 @@ public class PatientController {
   }
 
   @PostMapping(value = "", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<Patient> createPatient(@Valid @RequestBody PatientForm patientForm) {
-    Patient savedPatient = patientService.savePatient(patientForm);
+  public ResponseEntity<Patient> createPatient(@Valid @RequestBody PatientAddForm patientAddForm) {
+    Patient savedPatient = patientService.savePatient(patientAddForm);
     return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
   }
 
   @PutMapping(value = "/{id}", produces = "application/json")
-  public ResponseEntity<Patient> update(@PathVariable Long id, @Valid @RequestBody PatientForm form) {
+  public ResponseEntity<Patient> update(@PathVariable Long id, @Valid @RequestBody PatientUpdateForm form) {
     Patient updated = patientService.updatePatient(id, form);
     return ResponseEntity.ok(updated);
   }

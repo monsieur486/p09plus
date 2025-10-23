@@ -3,7 +3,7 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for ms-webclient" enabled="true">
+      <profile name="Annotation profile for ms-risque" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -11,10 +11,10 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
         </processorPath>
         <module name="ms-eureka" />
-        <module name="ms-patients" />
         <module name="ms-notes" />
-        <module name="ms-webclient" />
+        <module name="ms-patients" />
         <module name="ms-risque" />
+        <module name="ms-webclient" />
         <module name="ms-gateway" />
       </profile>
     </annotationProcessing>

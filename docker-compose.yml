@@ -5,6 +5,7 @@ services:
       context: ms-eureka
       dockerfile: Dockerfile
     container_name: ms-eureka
+    profiles: ["fullstack"]
     environment:
       SPRING_PROFILES_ACTIVE: docker
     ports:

@@ -4,6 +4,10 @@ import com.mr486.mspatients.dto.PatientAddForm;
 import com.mr486.mspatients.dto.PatientUpdateForm;
 import com.mr486.mspatients.model.Patient;
 import com.mr486.mspatients.service.PatientService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,29 +18,34 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/patients")
+@OpenAPIDefinition(info = @Info(title = "Gestion des patients API", version = "v1"))
+@SecurityRequirement(name = "basicAuth")
 public class PatientController {
 
   private final PatientService patientService;
 
-  @GetMapping(value = "", produces = "application/json")
+  @Tag(name = "Récupère touts les patients")
+  @GetMapping(value = "/patients", produces = "application/json")
   public ResponseEntity<List<Patient>> getPatients() {
     return ResponseEntity.ok(patientService.findAll());
   }
 
-  @GetMapping(value = "/{id}", produces = "application/json")
+  @Tag(name = "Récupère un patient par son ID")
+  @GetMapping(value = "/patients/{id}", produces = "application/json")
   public ResponseEntity<Patient> getPatient(@PathVariable Long id) {
     Patient patient = patientService.findById(id);
     return ResponseEntity.ok(patient);
   }
 
-  @PostMapping(value = "", consumes = "application/json", produces = "application/json")
+  @Tag(name = "Crée un nouveau patient")
+  @PostMapping(value = "/patients", consumes = "application/json", produces = "application/json")
   public ResponseEntity<Patient> createPatient(@Valid @RequestBody PatientAddForm patientAddForm) {
     Patient savedPatient = patientService.savePatient(patientAddForm);
     return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
   }
 
-  @PutMapping(value = "/{id}", produces = "application/json")
+  @Tag(name = "Met à jour un patient existant")
+  @PutMapping(value = "/patients/{id}", produces = "application/json")
   public ResponseEntity<Patient> update(@PathVariable Long id, @Valid @RequestBody PatientUpdateForm form) {
     Patient updated = patientService.updatePatient(id, form);
     return ResponseEntity.ok(updated);

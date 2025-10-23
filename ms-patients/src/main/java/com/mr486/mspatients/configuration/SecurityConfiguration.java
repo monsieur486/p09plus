@@ -29,9 +29,7 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(reg -> reg
                     .requestMatchers(
                             "/actuator/**",
-                            "/v3/api-docs/**",
-                            "/swagger-ui.html",
-                            "/swagger-ui/**"
+                            "/v3/api-docs/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

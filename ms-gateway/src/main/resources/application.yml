@@ -15,9 +15,9 @@ spring:
                 allowedOrigins:
                   - "http://localhost:9000"
                   - "http://ms-gateway:9000"
-                allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
-                allowedHeaders: ["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "*"]
-                exposedHeaders: ["Authorization"]
+                allowedMethods: [ GET, POST, PUT, PATCH, DELETE, OPTIONS ]
+                allowedHeaders: [ "Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "*" ]
+                exposedHeaders: [ "Authorization" ]
                 allowCredentials: true
           discovery:
             locator:

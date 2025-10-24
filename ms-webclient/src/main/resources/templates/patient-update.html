@@ -13,11 +13,21 @@
         <h5>Mise à jour fiche patient</h5>
         <form method="post" th:action="@{/app/dashboard/{id}/update(id=${patient.id})}" th:object="${patient}">
             <input th:field="*{id}" type="hidden"/>
-            <p>Prénom : <span th:text="*{firstName}"></span></p>
-            <p>Nom : <span th:text="*{lastName}"></span></p>
-            <p>Date de naissance : <span th:text="*{#temporals.format(birthDate, 'dd/MM/yyyy')}"></span></p>
-            <p>Genre : <span th:text="*{gender}"></span></p>
-
+            <label for="firstName">Prénom :</label>
+            <input id="firstName" required th:field="*{firstName}" type="text"/>
+            <br/>
+            <label for="lastName">Nom :</label>
+            <input id="lastName" required th:field="*{lastName}" type="text"/>
+            <br/>
+            <label for="birthDate">Date de naissance :</label>
+            <input id="birthDate" required th:field="*{birthDate}" type="date"/>
+            <br/>
+            <label for="gender">Gender :</label>
+            <select id="gender" required th:field="*{gender}">
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+            </select>
+            <br/>
             <label for="address">Adresse :</label>
             <input id="address" th:field="*{postalAddress}" type="text"/>
             <br/>

@@ -57,7 +57,7 @@ services:
       - patients-db
       - ms-gateway
     deploy:
-      replicas: ${REPLICA_MS_PATIENTS:-2}
+      replicas: ${REPLICA_MS_PATIENTS:-3}
     environment:
       SPRING_PROFILES_ACTIVE: docker
       APP_USERNAME: ${APP_USERNAME:-app_user}
@@ -75,7 +75,7 @@ services:
       - notes-db
       - ms-gateway
     deploy:
-      replicas: ${REPLICA_MS_NOTES:-2}
+      replicas: ${REPLICA_MS_NOTES:-3}
     environment:
       SPRING_PROFILES_ACTIVE: docker
       APP_USERNAME: ${APP_USERNAME:-app_user}
@@ -94,7 +94,7 @@ services:
       - ms-patients
       - ms-notes
     deploy:
-      replicas: ${REPLICA_MS_RISQUE:-2}
+      replicas: ${REPLICA_MS_RISQUE:-3}
     environment:
       SPRING_PROFILES_ACTIVE: docker
       APP_USERNAME: ${APP_USERNAME:-app_user}

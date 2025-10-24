@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-public class PatientAddForm {
+public class PatientForm {
   @NotBlank(message = "Le prénom ne peut pas être vide")
   private String firstName;
 

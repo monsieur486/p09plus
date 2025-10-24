@@ -56,14 +56,10 @@ services:
       - ms-eureka
       - patients-db
       - ms-gateway
-    deploy:
-      replicas: ${REPLICA_MS_PATIENTS:-3}
     environment:
       SPRING_PROFILES_ACTIVE: docker
       APP_USERNAME: ${APP_USERNAME:-app_user}
       APP_PASSWORD: ${APP_PASSWORD:-app_password}
-    ports:
-      - "0:9100"
 
   ms-notes:
     build:
@@ -74,14 +70,10 @@ services:
       - ms-eureka
       - notes-db
       - ms-gateway
-    deploy:
-      replicas: ${REPLICA_MS_NOTES:-3}
     environment:
       SPRING_PROFILES_ACTIVE: docker
       APP_USERNAME: ${APP_USERNAME:-app_user}
       APP_PASSWORD: ${APP_PASSWORD:-app_password}
-    ports:
-      - "0:9200"
 
   ms-risque:
     build:
@@ -93,24 +85,18 @@ services:
       - ms-gateway
       - ms-patients
       - ms-notes
-    deploy:
-      replicas: ${REPLICA_MS_RISQUE:-3}
     environment:
       SPRING_PROFILES_ACTIVE: docker
       APP_USERNAME: ${APP_USERNAME:-app_user}
       APP_PASSWORD: ${APP_PASSWORD:-app_password}
-    ports:
-      - "0:9300"
 
   ms-webclient:
     build:
       context: ms-webclient
       dockerfile: Dockerfile
-    container_name: ms-webclient
     profiles: ["fullstack"]
+    container_name: ms-webclient
     depends_on:
-      - ms-eureka
-      - ms-gateway
       - ms-patients
       - ms-notes
       - ms-risque

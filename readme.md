@@ -9,7 +9,12 @@
 docker compose --profile fullstack up -d --build
 ```
 
+On peut également scaler les micro-services pour simuler un environnement de production :
+```bash
+docker compose --profile fullstack up -d --scale ms-patients=3 --scale ms-notes=3 --scale ms-risque=3
+```
 NB : le profil "fullstack" démarre tous les services (application, gateway, eureka, base de données)
+En l'absence de ce profil, seules les bases de données démarrent.
 
 Si vous rencontrez un conflit de ports, vous pouvez créer une copie du fichier `dist.env` en `.env` et modifier les variables de ports selon vos besoins.
 
@@ -32,3 +37,6 @@ http://localhost:8761
 
 # Accès à la documentation Swagger
 http://localhost:9000/swagger-ui/index.html
+
+# Schéma des micro-services
+![Shema Micro-services](Mircoservices.png)

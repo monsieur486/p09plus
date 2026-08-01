@@ -35,6 +35,12 @@ la passerelle.
 ./prod-stop.sh     # arrêt, données conservées
 ```
 
+**Compter environ une minute avant que la pile réponde**, même une fois tous les
+conteneurs affichés « Up ». Chaque microservice doit d'abord se déclarer auprès du
+registre, puis la passerelle rafraîchir son catalogue pour savoir où router. Pendant ce
+laps de temps les appels échouent en 404 : c'est attendu, il n'y a rien à corriger. Le
+premier `./prod-start.sh` est bien plus long, le temps de construire les six images.
+
 En développement, on ne conteneurise que les bases ; les applications tournent en local :
 
 ```bash

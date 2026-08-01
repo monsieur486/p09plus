@@ -6,10 +6,6 @@ import com.mr486.commun.dto.PatientDto;
 import com.mr486.commun.dto.PatientForm;
 import com.mr486.mspatients.mapper.PatientMapper;
 import com.mr486.mspatients.service.PatientService;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -26,13 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@OpenAPIDefinition(info = @Info(title = "Gestion des patients API", version = "v1"))
-@SecurityRequirement(name = "basicAuth")
 public class PatientController {
     private final PatientService patientService;
     private final PatientMapper patientMapper;
 
-    @Tag(name = "Récupère les patients par page")
     @GetMapping(value = "/patients", produces = "application/json")
     public ResponseEntity<PageDto<PatientDto>> getPatients(
             @RequestParam(defaultValue = ConstantesApplication.PREMIERE_PAGE_TEXTE) int page,
@@ -42,20 +35,17 @@ public class PatientController {
         return ResponseEntity.ok(patientMapper.versPageDto(patientService.findAll(pagination)));
     }
 
-    @Tag(name = "Récupère un patient par son ID")
     @GetMapping(value = "/patients/{id}", produces = "application/json")
     public ResponseEntity<PatientDto> getPatient(@PathVariable Long id) {
         return ResponseEntity.ok(patientMapper.versDto(patientService.findById(id)));
     }
 
-    @Tag(name = "Crée un nouveau patient")
     @PostMapping(value = "/patients", consumes = "application/json", produces = "application/json")
     public ResponseEntity<PatientDto> createPatient(@Valid @RequestBody PatientForm patientForm) {
         PatientDto cree = patientMapper.versDto(patientService.savePatient(patientForm));
         return ResponseEntity.status(HttpStatus.CREATED).body(cree);
     }
 
-    @Tag(name = "Met à jour un patient existant")
     @PutMapping(value = "/patients/{id}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<PatientDto> update(
             @PathVariable Long id, @Valid @RequestBody PatientForm patientForm) {

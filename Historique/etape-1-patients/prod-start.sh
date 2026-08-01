@@ -12,4 +12,4 @@ docker compose --profile fullstack up -d --build \
   --scale "ms-notes=${REPLICA_MS_NOTES}" \
   --scale "ms-risque=${REPLICA_MS_RISQUE}"
 
-echo "Pile démarrée : IHM sur http://localhost:8080, Swagger sur http://localhost:9000/swagger-ui/index.html"
+echo "Pile démarrée : IHM sur http://localhost:8080"

@@ -1,6 +1,5 @@
 package com.mr486.msnotes;
 
-import com.mr486.commun.configuration.DocumentationApiConfiguration;
 import com.mr486.commun.configuration.SecuriteApiConfiguration;
 import com.mr486.commun.exception.GlobalExceptionHandler;
 import io.mongock.runner.springboot.EnableMongock;
@@ -12,7 +11,6 @@ import org.springframework.context.annotation.Import;
 @EnableMongock
 @Import({
         SecuriteApiConfiguration.class,
-        DocumentationApiConfiguration.class,
         GlobalExceptionHandler.class})
 public class MsNotesApplication {
     public static void main(String[] args) {

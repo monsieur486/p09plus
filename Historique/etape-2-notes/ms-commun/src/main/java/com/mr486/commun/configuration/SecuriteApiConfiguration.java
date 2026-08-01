@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecuriteApiConfiguration {
-    private static final String[] CHEMINS_PUBLICS = {"/actuator/**", "/v3/api-docs/**"};
+    private static final String[] CHEMINS_PUBLICS = {"/actuator/**"};
 
     @Value("${security.app-user.username}")
     private String utilisateur;

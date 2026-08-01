@@ -5,10 +5,6 @@ import com.mr486.commun.dto.NoteDto;
 import com.mr486.commun.dto.PageDto;
 import com.mr486.msnotes.mapper.NoteMapper;
 import com.mr486.msnotes.service.NoteService;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,13 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@OpenAPIDefinition(info = @Info(title = "Gestion des notes d'un patient API", version = "v1"))
-@SecurityRequirement(name = "basicAuth")
 public class NoteController {
     private final NoteService noteService;
     private final NoteMapper noteMapper;
 
-    @Tag(name = "Récupère les notes d'un patient par page")
     @GetMapping(value = "/patients/{patientId}/notes", produces = "application/json")
     public ResponseEntity<PageDto<NoteDto>> getNotes(
             @PathVariable Long patientId,
@@ -42,7 +35,6 @@ public class NoteController {
                 noteMapper.versPageDto(noteService.findByPatientId(patientId, pagination)));
     }
 
-    @Tag(name = "Ajoute une note à un patient par son ID")
     @PostMapping(value = "/patients/{patientId}/notes",
             consumes = "application/json", produces = "application/json")
     public ResponseEntity<NoteDto> addNote(

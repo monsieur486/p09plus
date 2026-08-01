@@ -2,7 +2,7 @@
 
 > **À propos de ce dossier.** Cette étape est une copie autonome du projet à ce stade de
 > sa construction. Le code y est livré **brut, sans commentaires ni Javadoc**, afin de ne
-> montrer que la structure. La version documentée se trouve à la racine du dépôt.
+> montrer que la structure. La version documentée se trouve dans l'étape 5.
 
 Première étape : la gestion des fiches patients et l'interface web qui les présente.
 Le socle technique est posé dès maintenant — registre de services, passerelle et
@@ -63,7 +63,7 @@ En développement, seules les bases sont conteneurisées :
 
 ```bash
 ./dev-start.sh                          # bases de données seules
-cd ms-eureka && ./mvnw spring-boot:run  # registre à démarrer en premier
+./mvnw -pl ms-eureka spring-boot:run    # registre à démarrer en premier
 ```
 
 ## Construire

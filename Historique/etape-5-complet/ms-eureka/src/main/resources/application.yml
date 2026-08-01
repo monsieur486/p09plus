@@ -1,0 +1,35 @@
+# Registre de services : les microservices s'y déclarent au démarrage et y trouvent
+# l'adresse de leurs pairs. C'est le seul service que tous les autres doivent joindre.
+
+server:
+  # Port d'écoute du registre ; c'est l'adresse que référencent tous les clients.
+  port: 8761
+
+spring:
+  application:
+    # Nom logique du service, affiché dans le tableau de bord Eureka et dans les journaux.
+    name: ms-eureka
+
+eureka:
+  instance:
+    # Nom d'hôte sous lequel le registre s'annonce.
+    hostname: localhost
+    # Identifiant unique de l'instance : le nom du conteneur suffit à la distinguer.
+    instance-id: ${HOSTNAME}:${server.port}
+    # Privilégie l'adresse IP au nom d'hôte, plus fiable entre conteneurs.
+    prefer-ip-address: true
+  client:
+    # Le registre ne s'enregistre pas auprès de lui-même.
+    register-with-eureka: false
+    # Il n'a pas non plus à récupérer le catalogue : c'est lui qui le détient.
+    fetch-registry: false
+    service-url:
+      # Adresse de publication du registre, reprise par tous les clients.
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # N'expose que la supervision utile : état de santé et informations de version.
+        include: health,info

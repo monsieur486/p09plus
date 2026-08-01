@@ -1,42 +1,32 @@
-# Prérequis
+# Dépistage du risque de diabète — construction pas à pas
 
-- docker compose v 2.40.0 ou supérieur
-- docker v 24.0.5 ou supérieur
+Ce dépôt ne contient pas un projet, mais sa construction, découpée en cinq étapes. Chaque
+dossier de `Historique/` est un projet Maven autonome, qui se démarre et se teste seul.
 
-# Démarrage du projet
+| Étape | Ce qu'elle apporte |
+|---|---|
+| [1 — Gestion des patients](Historique/etape-1-patients/readme.md) | le socle — registre, passerelle, bibliothèque partagée — puis les fiches patients et l'interface web |
+| [2 — Notes](Historique/etape-2-notes/readme.md) | les notes de consultation, sur base documentaire |
+| [3 — Risque](Historique/etape-3-risque/readme.md) | l'évaluation du risque de diabète, croisée à partir des notes |
+| [4 — Swagger](Historique/etape-4-swagger/readme.md) | la documentation OpenAPI des trois API |
+| [5 — Projet complet](Historique/etape-5-complet/readme.md) | le même code, commenté et documenté |
+
+Les étapes 1 à 4 livrent le code **brut, sans commentaires ni Javadoc**, afin de ne montrer
+que la structure. L'**étape 5** est la version de référence : c'est elle qu'il faut ouvrir
+pour découvrir le projet plutôt que sa construction.
+
+## Démarrer une étape
+
+Les commandes se lancent depuis le dossier de l'étape, jamais depuis la racine :
 
 ```bash
-docker compose --profile fullstack up -d --build
+cd Historique/etape-5-complet
+./prod-start.sh    # pile complète en conteneurs
+./mvnw verify      # compile, teste et produit les rapports qualité
 ```
 
-On peut également scaler les micro-services pour simuler un environnement de production :
-```bash
-docker compose --profile fullstack up -d --scale ms-patients=3 --scale ms-notes=3 --scale ms-risque=3
-```
-NB : le profil "fullstack" démarre tous les services (application, gateway, eureka, base de données)
-En l'absence de ce profil, seules les bases de données démarrent.
+Toutes les étapes utilisent les **mêmes ports** et les mêmes noms de conteneurs : n'en faire
+tourner qu'une à la fois, sinon arrêter la précédente avec son `./prod-stop.sh`.
 
-Si vous rencontrez un conflit de ports, vous pouvez créer une copie du fichier `dist.env` en `.env` et modifier les variables de ports selon vos besoins.
-
-Sans le fichier `.env`, les ports par défaut sont les suivants :
-
-# Accès à l'application
-http://localhost:8080
-
-user: 
-```app_user```
-
-password:
-```app_password```
-
-# Accès à la gateway
-http://localhost:9000
-
-# Accès à Eureka
-http://localhost:8761
-
-# Accès à la documentation Swagger
-http://localhost:9000/swagger-ui/index.html
-
-# Schéma des micro-services
-![Shema Micro-services](Mircoservices.png)
+Le détail — prérequis, comptes, API exposées, règle métier — figure dans le readme de
+chaque étape.

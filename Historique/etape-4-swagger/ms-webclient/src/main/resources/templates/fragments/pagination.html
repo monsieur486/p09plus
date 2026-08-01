@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="pagination(pageCourante, lien, parametre)"
+     th:if="${pageCourante.totalPages > 1}">
+    <ul class="pagination justify-content-center">
+        <li class="page-item" th:classappend="${!pageCourante.aPrecedente()} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{__${lien}__(__${parametre}__=${pageCourante.page - 1})}">Précédent</a>
+        </li>
+        <li class="page-item" th:each="numero : ${#numbers.sequence(0, pageCourante.totalPages - 1)}"
+            th:classappend="${numero == pageCourante.page} ? 'active'">
+            <a class="page-link" th:href="@{__${lien}__(__${parametre}__=${numero})}"
+               th:text="${numero + 1}">1</a>
+        </li>
+        <li class="page-item" th:classappend="${!pageCourante.aSuivante()} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{__${lien}__(__${parametre}__=${pageCourante.page + 1})}">Suivant</a>
+        </li>
+    </ul>
+</nav>
+</body>
+</html>

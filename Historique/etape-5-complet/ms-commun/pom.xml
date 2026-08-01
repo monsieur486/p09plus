@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.mr486</groupId>
+        <artifactId>p09plus</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>ms-commun</artifactId>
+    <name>ms-commun</name>
+    <description>Contrat d'API partagé : DTO, exceptions métier et traitement uniforme des erreurs</description>
+
+    <!--
+      Bibliothèque, pas application : ce module ne déclare volontairement ni classe
+      @SpringBootApplication ni spring-boot-maven-plugin. Il produit un jar ordinaire,
+      consommable comme dépendance par les microservices.
+    -->
+
+    <dependencies>
+        <!-- Annotations de validation portées par les DTO d'entrée. -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+
+        <!-- Fournit @DateTimeFormat, utilisé pour lier les dates des formulaires. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <!-- Façade de journalisation ; l'implémentation est apportée par les applications. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!--
+          Socle web du gestionnaire d'exception partagé. Déclaré optionnel : les
+          applications qui l'utilisent apportent déjà spring-boot-starter-web, et les
+          consommateurs qui ne veulent que les DTO n'héritent pas de ces dépendances.
+        -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+          Socle de la configuration de sécurité et de documentation partagée par les API.
+          Optionnels pour la même raison que ci-dessus : seules les applications qui
+          importent ces configurations en ont besoin.
+        -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+            <version>${springdoc.version}</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+</project>

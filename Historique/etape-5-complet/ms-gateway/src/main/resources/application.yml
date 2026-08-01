@@ -1,0 +1,64 @@
+# Passerelle : point d'entrée unique des API. Elle route les appels d'après le nom du
+# microservice placé en tête de l'URL, puis retire ce segment avant de transmettre.
+
+spring:
+  application:
+    # Nom logique du service, affiché dans les journaux et le registre.
+    name: ms-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            # Applique aussi la configuration CORS aux requêtes préalables OPTIONS.
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                # Origines autorisées à appeler les API du navigateur.
+                allowedOrigins:
+                  - "http://localhost:9000"
+                  - "http://ms-gateway:9000"
+                # Méthodes HTTP acceptées depuis ces origines.
+                allowedMethods: [ GET, POST, PUT, PATCH, DELETE, OPTIONS ]
+                # En-têtes que l'appelant peut envoyer, dont celui d'authentification.
+                allowedHeaders: [ "Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With", "*" ]
+                # En-têtes que le navigateur est autorisé à lire dans la réponse.
+                exposedHeaders: [ "Authorization" ]
+                # Autorise la transmission des identifiants d'authentification.
+                allowCredentials: true
+          discovery:
+            locator:
+              # Crée automatiquement une route par service enregistré : aucune route à écrire.
+              enabled: true
+              # Les noms de services étant en minuscules, les URL le sont aussi.
+              lower-case-service-id: true
+              filters:
+                - name: StripPrefix
+                  args:
+                    # Retire le premier segment (le nom du service) avant de transmettre.
+                    parts: 1
+
+server:
+  # Port d'écoute de la passerelle, seul port d'API exposé aux clients.
+  port: 9000
+
+springdoc:
+  api-docs:
+    # Publie le contrat OpenAPI agrégé.
+    enabled: true
+    # Chemin de ce contrat.
+    path: /v3/api-docs
+  swagger-ui:
+    # Masque le contrat d'exemple fourni par défaut par Swagger.
+    disable-swagger-default-url: true
+    # Contrats des microservices, présentés dans le sélecteur de l'interface Swagger.
+    urls:
+      - name: ms-patients
+        url: /ms-patients/v3/api-docs
+      - name: ms-notes
+        url: /ms-notes/v3/api-docs
+      - name: ms-risque
+        url: /ms-risque/v3/api-docs
+    # Contrat affiché à l'ouverture de l'interface.
+    urlsPrimaryName: ms-patients

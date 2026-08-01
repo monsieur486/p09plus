@@ -1,0 +1,54 @@
+# Microservice d'évaluation du risque de diabète. Il ne possède pas de base : il
+# interroge les services des patients et des notes, résolus par le registre.
+
+spring:
+  config:
+    # Charge le fichier .env s'il est présent ; son absence n'empêche pas le démarrage.
+    import: optional:file:.env[.properties]
+
+  application:
+    # Nom logique du service : il sert aussi de préfixe de routage à la passerelle.
+    name: ms-risque
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            # Trace la méthode, l'URL et le temps de réponse de chaque appel sortant,
+            # sans journaliser les corps de requête, qui contiennent des données de santé.
+            logger-level: basic
+            # Délai maximal d'établissement de la connexion, en millisecondes : au-delà,
+            # le service appelé est considéré indisponible plutôt que de faire attendre.
+            connectTimeout: 2000
+            # Délai maximal d'attente de la réponse, en millisecondes.
+            readTimeout: 2000
+
+security:
+  app-user:
+    # Compte de service, utilisé à la fois pour accepter les appels entrants et pour
+    # s'authentifier auprès des microservices appelés.
+    username: ${APP_USERNAME:app_user}
+    # Mot de passe de ce compte, haché au démarrage.
+    password: ${APP_PASSWORD:app_password}
+
+server:
+  # Port d'écoute du service ; il n'est pas publié sur l'hôte, les appels passent par la passerelle.
+  port: 9300
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # N'expose que la supervision utile : état de santé et informations de version.
+        include: health,info
+
+eureka:
+  client:
+    service-url:
+      # Adresse du registre auprès duquel le service se déclare.
+      defaultZone: http://ms-eureka:8761/eureka
+    # Rend le service visible des autres, dont la passerelle.
+    registerWithEureka: true
+    # Récupère le catalogue : indispensable ici, les clients Feign résolvent leurs cibles par nom.
+    fetchRegistry: true

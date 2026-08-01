@@ -1,0 +1,60 @@
+# Microservice de gestion des notes des praticiens, adossé à MongoDB.
+# Aucun secret n'est écrit en dur : les identifiants proviennent du fichier .env, les
+# valeurs par défaut ne servant qu'au démarrage en développement.
+
+spring:
+  config:
+    # Charge le fichier .env s'il est présent ; son absence n'empêche pas le démarrage.
+    import: optional:file:.env[.properties]
+
+  application:
+    # Nom logique du service : il sert aussi de préfixe de routage à la passerelle.
+    name: ms-notes
+
+  data:
+    mongodb:
+      # Adresse de la base ; en conteneur, elle est jointe par son nom de service Docker.
+      host: notes-db
+      # Port d'écoute de MongoDB.
+      port: 27017
+      # Compte de connexion à la base.
+      username: ${MONGO_INITDB_ROOT_USERNAME:notes_user}
+      # Mot de passe de ce compte.
+      password: ${MONGO_INITDB_ROOT_PASSWORD:notes_password}
+      # Base de données contenant la collection des notes.
+      database: notesdb
+      # Base où sont déclarés les comptes, distincte de celle des données.
+      authentication-database: admin
+
+mongock:
+  migration-scan-package:
+    # Paquetage balayé à la recherche des migrations à appliquer au démarrage.
+    - com.mr486.msnotes.dbchangelogs
+
+security:
+  app-user:
+    # Compte de service accepté par l'API, en authentification HTTP Basic.
+    username: ${APP_USERNAME:app_user}
+    # Mot de passe de ce compte, haché au démarrage.
+    password: ${APP_PASSWORD:app_password}
+
+server:
+  # Port d'écoute du service ; il n'est pas publié sur l'hôte, les appels passent par la passerelle.
+  port: 9200
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # N'expose que la supervision utile : état de santé et informations de version.
+        include: health,info
+
+eureka:
+  client:
+    service-url:
+      # Adresse du registre auprès duquel le service se déclare.
+      defaultZone: http://ms-eureka:8761/eureka
+    # Rend le service visible des autres, dont la passerelle.
+    registerWithEureka: true
+    # Récupère le catalogue pour joindre ses pairs par leur nom.
+    fetchRegistry: true

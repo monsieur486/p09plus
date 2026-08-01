@@ -1,0 +1,27 @@
+# Interface web des praticiens. Elle ne possède ni base ni API publique, et ne
+# s'enregistre pas auprès du registre : elle ne connaît que l'adresse de la passerelle.
+
+spring:
+  config:
+    # Charge le fichier .env s'il est présent ; son absence n'empêche pas le démarrage.
+    import: optional:file:.env[.properties]
+
+  application:
+    # Nom logique de l'application, affiché dans les journaux.
+    name: ms-webclient
+
+app:
+  gateway:
+    # Adresse de la passerelle, seul point d'entrée par lequel l'interface appelle les API ;
+    # en conteneur, elle est jointe par son nom de service Docker.
+    base-url: http://ms-gateway:9000
+  auth:
+    # Compte utilisé à la fois pour la connexion des praticiens à l'interface et pour
+    # authentifier les appels sortants vers les API.
+    username: ${APP_USERNAME:app_user}
+    # Mot de passe de ce compte, haché au démarrage.
+    password: ${APP_PASSWORD:app_password}
+
+server:
+  # Port d'écoute de l'interface : c'est la seule application publiée aux utilisateurs.
+  port: 8080

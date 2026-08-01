@@ -1,69 +1,86 @@
 package com.mr486.mswebclient.controller;
 
-import com.mr486.mswebclient.dto.Note;
+import com.mr486.commun.dto.NoteDto;
+import com.mr486.mswebclient.configuration.ConstantesToast;
+import com.mr486.mswebclient.service.NoteApiService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
+/**
+ * Gère l'ajout d'une note à un patient.
+ *
+ * <p>La consultation des notes n'a pas de page propre : elle est intégrée à la fiche du
+ * patient, aux côtés du niveau de risque.</p>
+ *
+ * <p><b>Exemple :</b> {@code POST /app/dashboard/2/notes} enregistre une note puis redirige
+ * vers la fiche du patient 2.</p>
+ */
 @Controller
 @RequestMapping("/app")
+@RequiredArgsConstructor
 public class NotesController {
 
-  private final RestTemplate restTemplate;
-  private final String gatewayBase;
+    /** Vue du formulaire d'ajout, réaffichée telle quelle en cas de saisie invalide. */
+    private static final String VUE_AJOUT = "note-ajout";
 
-  public NotesController(RestTemplate restTemplate,
-                         @Value("${app.gateway.base-url}") String gatewayBase) {
-    this.restTemplate = restTemplate;
-    this.gatewayBase = gatewayBase;
-  }
+    /** Attribut portant l'identifiant du patient dans les vues. */
+    private static final String ATTRIBUT_ID = "patientId";
 
-  @GetMapping("/dashboard/{patientId}/notes")
-  public String getNotes(Model model, @PathVariable Long patientId) {
-    List<Note> notes;
-    ResponseEntity<List<Note>> response = restTemplate.exchange(
-            gatewayBase + "/ms-notes/patients/" + patientId + "/notes",
-            HttpMethod.GET,
-            null,
-            new ParameterizedTypeReference<List<Note>>() {
-            }
-    );
-    notes = response.getBody();
-    model.addAttribute("notes", notes);
-    model.addAttribute("patientId", patientId);
-    return "notes";
-  }
+    private final NoteApiService noteApiService;
 
-  @GetMapping("/dashboard/{patientId}/notes/ajout")
-  public String showCreateNoteForm(@PathVariable Long patientId, Model model) {
-    model.addAttribute("patientId", patientId);
-    model.addAttribute("note", new Note());
-    return "note-ajout";
-  }
+    /**
+     * Affiche le formulaire d'ajout d'une note.
+     *
+     * <p><b>Exemple :</b> {@code GET /app/dashboard/2/notes/ajout} affiche une zone de
+     * saisie vierge.</p>
+     *
+     * @param patientId identifiant du patient concerné
+     * @param model     modèle transmis à la vue
+     * @return le nom de la vue du formulaire
+     */
+    @GetMapping("/dashboard/{patientId}/notes/ajout")
+    public String showCreateNoteForm(@PathVariable Long patientId, Model model) {
+        model.addAttribute("note", new NoteDto());
+        model.addAttribute(ATTRIBUT_ID, patientId);
+        return VUE_AJOUT;
+    }
 
-  @PostMapping("/dashboard/{patientId}/notes")
-  public String ajoutNotePost(@PathVariable Long patientId, @Valid Note note) {
-    HttpEntity<Note> requestEntity = new HttpEntity<>(note);
-
-    ResponseEntity<Note> scoreResponse = restTemplate.exchange(
-            gatewayBase + "/ms-notes/patients/" + patientId + "/notes",
-            HttpMethod.POST,
-            requestEntity,
-            new ParameterizedTypeReference<Note>() {
-            }
-    );
-    return "redirect:/app/dashboard/{patientId}/notes";
-  }
+    /**
+     * Enregistre une nouvelle note pour un patient.
+     *
+     * <p><b>Exemple :</b> une note vide réaffiche le formulaire avec le message d'erreur ;
+     * une note valide redirige vers la fiche du patient.</p>
+     *
+     * @param patientId         identifiant du patient concerné
+     * @param note              contenu saisi dans le formulaire
+     * @param resultatDeLiaison résultat de la validation du formulaire
+     * @param model             modèle transmis à la vue
+     * @param redirection       porteur du message affiché après la redirection
+     * @return la redirection vers la fiche du patient, ou le formulaire en cas d'erreur
+     */
+    @PostMapping("/dashboard/{patientId}/notes")
+    public String ajoutNoteSubmit(
+            @PathVariable Long patientId,
+            @Valid @ModelAttribute("note") NoteDto note,
+            BindingResult resultatDeLiaison,
+            Model model,
+            RedirectAttributes redirection) {
+        if (resultatDeLiaison.hasErrors()) {
+            model.addAttribute(ATTRIBUT_ID, patientId);
+            return VUE_AJOUT;
+        }
+        noteApiService.ajouteUneNote(patientId, note);
+        redirection.addFlashAttribute(ConstantesToast.CLE_NIVEAU, ConstantesToast.NIVEAU_INFO);
+        redirection.addFlashAttribute(ConstantesToast.CLE_MESSAGE, "Note ajoutée au dossier.");
+        return "redirect:/app/dashboard/" + patientId;
+    }
 }

@@ -1,0 +1,52 @@
+package com.mr486.mswebclient.controller;
+
+import com.mr486.commun.dto.PatientForm;
+import com.mr486.mswebclient.configuration.ConstantesToast;
+import com.mr486.mswebclient.service.PatientApiService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Controller
+@RequestMapping("/app")
+@RequiredArgsConstructor
+public class PatientsController {
+
+    private static final String VUE_AJOUT = "patient-ajout";
+
+    private final PatientApiService patientApiService;
+
+    @GetMapping("/dashboard")
+    public String dashboard(@RequestParam(defaultValue = "0") int page, Model model) {
+        model.addAttribute("pagePatients", patientApiService.listeLesPatients(Math.max(page, 0)));
+        return "patients";
+    }
+
+    @GetMapping("/dashboard/ajout")
+    public String showCreatePatientForm(Model model) {
+        model.addAttribute("patient", new PatientForm());
+        return VUE_AJOUT;
+    }
+
+    @PostMapping("/dashboard/ajout")
+    public String ajoutPatientSubmit(
+            @Valid @ModelAttribute("patient") PatientForm patient,
+            BindingResult resultatDeLiaison,
+            RedirectAttributes redirection) {
+        if (resultatDeLiaison.hasErrors()) {
+            return VUE_AJOUT;
+        }
+        patientApiService.creeLePatient(patient);
+        redirection.addFlashAttribute(ConstantesToast.CLE_NIVEAU, ConstantesToast.NIVEAU_INFO);
+        redirection.addFlashAttribute(ConstantesToast.CLE_MESSAGE, "Patient créé.");
+        return "redirect:/app/dashboard";
+    }
+}

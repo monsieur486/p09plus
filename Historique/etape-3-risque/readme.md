@@ -2,11 +2,11 @@
 
 > **À propos de ce dossier.** Cette étape est une copie autonome du projet à ce stade de
 > sa construction. Le code y est livré **brut, sans commentaires ni Javadoc**, afin de ne
-> montrer que la structure. La version documentée se trouve à la racine du dépôt.
+> montrer que la structure. La version documentée se trouve dans l'étape 5.
 
-Troisième et dernière étape : l'évaluation du risque de diabète. Elle reprend l'étape 2 et
-lui ajoute `ms-risque`, qui ne possède pas de base — il interroge les deux autres services
-et croise leurs données.
+Troisième étape : l'évaluation du risque de diabète. Elle reprend l'étape 2 et lui ajoute
+`ms-risque`, qui ne possède pas de base — il interroge les deux autres services et croise
+leurs données.
 
 ## Ce que l'étape ajoute
 
@@ -46,6 +46,11 @@ passerelle. L'API des notes étant paginée, il en parcourt **toutes** les pages
 à la première sous-estimerait le risque. Un service injoignable produit un `503` explicite
 plutôt qu'une erreur opaque.
 
+## Étape suivante
+
+Les trois API sont en place, mais rien ne les décrit : l'étape 4 leur ajoute une
+documentation OpenAPI, consultable et essayable depuis la passerelle.
+
 ## Prérequis
 
 - Java 17 et Docker 24+ / Docker Compose 2.40+
@@ -67,7 +72,7 @@ En développement, seules les bases sont conteneurisées :
 
 ```bash
 ./dev-start.sh                          # bases de données seules
-cd ms-eureka && ./mvnw spring-boot:run  # registre à démarrer en premier
+./mvnw -pl ms-eureka spring-boot:run    # registre à démarrer en premier
 ```
 
 ## Construire

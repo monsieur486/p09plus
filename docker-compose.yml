@@ -2,8 +2,9 @@ services:
 
   ms-eureka:
     build:
-      context: ms-eureka
-      dockerfile: Dockerfile
+      # Contexte à la racine : le module hérite du pom parent et dépend de ms-commun.
+      context: .
+      dockerfile: ms-eureka/Dockerfile
     container_name: ms-eureka
     profiles: ["fullstack"]
     environment:
@@ -13,8 +14,9 @@ services:
 
   ms-gateway:
     build:
-      context: ms-gateway
-      dockerfile: Dockerfile
+      # Contexte à la racine : le module hérite du pom parent et dépend de ms-commun.
+      context: .
+      dockerfile: ms-gateway/Dockerfile
     container_name: ms-gateway
     profiles: ["fullstack"]
     depends_on:
@@ -49,8 +51,9 @@ services:
 
   ms-patients:
     build:
-      context: ms-patients
-      dockerfile: Dockerfile
+      # Contexte à la racine : le module hérite du pom parent et dépend de ms-commun.
+      context: .
+      dockerfile: ms-patients/Dockerfile
     profiles: ["fullstack"]
     depends_on:
       - ms-eureka
@@ -63,8 +66,9 @@ services:
 
   ms-notes:
     build:
-      context: ms-notes
-      dockerfile: Dockerfile
+      # Contexte à la racine : le module hérite du pom parent et dépend de ms-commun.
+      context: .
+      dockerfile: ms-notes/Dockerfile
     profiles: ["fullstack"]
     depends_on:
       - ms-eureka
@@ -77,8 +81,9 @@ services:
 
   ms-risque:
     build:
-      context: ms-risque
-      dockerfile: Dockerfile
+      # Contexte à la racine : le module hérite du pom parent et dépend de ms-commun.
+      context: .
+      dockerfile: ms-risque/Dockerfile
     profiles: ["fullstack"]
     depends_on:
       - ms-eureka
@@ -92,8 +97,9 @@ services:
 
   ms-webclient:
     build:
-      context: ms-webclient
-      dockerfile: Dockerfile
+      # Contexte à la racine : le module hérite du pom parent et dépend de ms-commun.
+      context: .
+      dockerfile: ms-webclient/Dockerfile
     profiles: ["fullstack"]
     container_name: ms-webclient
     depends_on:

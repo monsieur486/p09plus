@@ -1,41 +1,66 @@
+# Microservice de gestion des fiches patients, adossé à PostgreSQL.
+# Aucun secret n'est écrit en dur : les identifiants proviennent du fichier .env, les
+# valeurs par défaut ne servant qu'au démarrage en développement.
+
 spring:
   config:
+    # Charge le fichier .env s'il est présent ; son absence n'empêche pas le démarrage.
     import: optional:file:.env[.properties]
 
   application:
+    # Nom logique du service : il sert aussi de préfixe de routage à la passerelle.
     name: ms-patients
 
   datasource:
+    # Adresse de la base ; en développement, la base tourne dans un conteneur exposé sur l'hôte.
     url: jdbc:postgresql://localhost:5432/${POSTGRES_DB:patientsdb}
+    # Compte de connexion à la base.
     username: ${POSTGRES_USER:patient_user}
+    # Mot de passe de ce compte.
     password: ${POSTGRES_PASSWORD:patient_pass}
+    # Pilote JDBC PostgreSQL.
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
+      # Le schéma appartient aux migrations Liquibase : Hibernate se contente de vérifier
+      # que la base correspond aux entités, et refuse de démarrer sinon.
       ddl-auto: validate
 
   liquibase:
+    # Point d'entrée des migrations, qui référence les changelogs dans leur ordre d'application.
     change-log: classpath:db/changelog/master.xml
 
   web:
     resources:
-      add-mappings: false   # évite que les ressources statiques interceptent les 404
+      # Empêche les ressources statiques d'intercepter les URL inconnues, pour que le
+      # gestionnaire d'erreurs renvoie un vrai 404 au format de l'API.
+      add-mappings: false
 
 security:
   app-user:
+    # Compte de service accepté par l'API, en authentification HTTP Basic.
     username: ${APP_USERNAME:app_user}
+    # Mot de passe de ce compte, haché au démarrage.
     password: ${APP_PASSWORD:app_password}
 
 server:
+  # Port d'écoute du service ; il n'est pas publié sur l'hôte, les appels passent par la passerelle.
   port: 9100
 
 management:
-  endpoints.web.exposure.include: health,info
+  endpoints:
+    web:
+      exposure:
+        # N'expose que la supervision utile : état de santé et informations de version.
+        include: health,info
 
 eureka:
   client:
     service-url:
+      # Adresse du registre auprès duquel le service se déclare.
       defaultZone: http://localhost:8761/eureka
+    # Rend le service visible des autres, dont la passerelle.
     registerWithEureka: true
+    # Récupère le catalogue pour joindre ses pairs par leur nom.
     fetchRegistry: true

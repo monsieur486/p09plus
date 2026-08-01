@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
  * Présente les erreurs de l'interface web sous une forme compréhensible par le praticien.
@@ -71,6 +72,30 @@ public class GestionnaireErreursWeb {
         model.addAttribute("titre", "Service momentanément indisponible");
         model.addAttribute("message", ex.getMessage());
         model.addAttribute("reessayable", true);
+        return VUE_ERREUR;
+    }
+
+    /**
+     * Affiche une page d'erreur lorsqu'une ressource statique demandée n'existe pas.
+     *
+     * <p>Sans ce traitement, l'absence d'un fichier remonterait au gestionnaire générique et
+     * produirait un statut 500 : une simple URL erronée serait comptée comme une panne du
+     * service et polluerait les journaux d'incidents.</p>
+     *
+     * <p><b>Exemple :</b> une requête sur {@code /favicon.ico} alors que l'icône est servie
+     * en SVG retourne un statut 404, pas 500.</p>
+     *
+     * @param ex    exception signalant la ressource statique absente
+     * @param model modèle transmis à la vue
+     * @return le nom de la vue d'erreur
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String ressourceStatiqueIntrouvable(NoResourceFoundException ex, Model model) {
+        log.warn("ressource statique absente : {}", ex.getResourcePath());
+        model.addAttribute("titre", "Page introuvable");
+        model.addAttribute("message", "La ressource demandée est introuvable.");
+        model.addAttribute("reessayable", false);
         return VUE_ERREUR;
     }
 

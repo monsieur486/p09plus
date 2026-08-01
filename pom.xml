@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Le parent Spring Boot fournit la gestion centralisée des versions de dépendances. -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.6</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.mr486</groupId>
+    <artifactId>p09plus</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>p09plus</name>
+    <description>Dépistage du risque de diabète — architecture en microservices</description>
+
+    <!-- Bibliothèque partagée en premier : les microservices en dépendent. -->
+    <modules>
+        <module>ms-commun</module>
+        <module>ms-eureka</module>
+        <module>ms-gateway</module>
+        <module>ms-patients</module>
+        <module>ms-notes</module>
+        <module>ms-risque</module>
+        <module>ms-webclient</module>
+    </modules>
+
+    <properties>
+        <!-- Version de Java utilisée pour la compilation et l'exécution. -->
+        <java.version>17</java.version>
+        <!-- Encodage unique des sources et des rapports, pour préserver les accents français. -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Train de dépendances Spring Cloud (Eureka, Gateway, OpenFeign). -->
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <!-- Migrations MongoDB du microservice des notes. -->
+        <mongock.version>5.5.1</mongock.version>
+        <!-- Feuilles de style et scripts de l'interface web, servis par l'application. -->
+        <bootstrap.version>5.3.3</bootstrap.version>
+        <!-- Documentation OpenAPI des API REST. -->
+        <springdoc.version>2.8.13</springdoc.version>
+
+        <!--
+          Version de l'API Docker utilisée par Testcontainers. Sans ce réglage, le client
+          embarqué négocie l'API 1.32, que les démons Docker récents refusent (ils exigent
+          au minimum la 1.40). La 1.43 est reconnue depuis Docker 24, la version minimale
+          annoncée dans le README.
+        -->
+        <docker.api.version>1.43</docker.api.version>
+
+        <!-- Emplacement des configurations d'analyse, résolu depuis la racine du dépôt. -->
+        <config.qualite.dir>${maven.multiModuleProjectDirectory}/config</config.qualite.dir>
+        <!-- Seuil de couverture des lignes visé par JaCoCo (contrôle non bloquant). -->
+        <jacoco.couverture.minimale>0.80</jacoco.couverture.minimale>
+
+        <!-- Versions des outils d'analyse et de génération du site. -->
+        <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
+        <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
+        <checkstyle.version>10.21.1</checkstyle.version>
+        <spotbugs.plugin.version>4.8.6.6</spotbugs.plugin.version>
+        <findsecbugs.version>1.13.0</findsecbugs.version>
+        <pmd.plugin.version>3.26.0</pmd.plugin.version>
+        <site.plugin.version>3.21.0</site.plugin.version>
+        <jxr.plugin.version>3.6.0</jxr.plugin.version>
+        <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
+        <project-info.plugin.version>3.9.0</project-info.plugin.version>
+        <surefire-report.plugin.version>3.5.4</surefire-report.plugin.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Bibliothèque maison : DTO d'API et exceptions métier partagés. -->
+            <dependency>
+                <groupId>com.mr486</groupId>
+                <artifactId>ms-commun</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.mongock</groupId>
+                <artifactId>mongock-bom</artifactId>
+                <version>${mongock.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Lombok est utilisé par tous les modules (constructeurs, accesseurs, logger). -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Exclut Lombok du jar exécutable : ce n'est qu'une dépendance de compilation. -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <!-- Transmet aux tests la version d'API attendue par le démon Docker local. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <api.version>${docker.api.version}</api.version>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <!-- Active le traitement des annotations Lombok à la compilation. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!-- Couverture des tests : rapport + contrôle indicatif du seuil de lignes. -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.plugin.version}</version>
+                <configuration>
+                    <!--
+                      La couverture ne porte que sur le code qui décide quelque chose. Sont
+                      exclues les catégories que l'on choisit délibérément de ne pas tester :
+                      objets de transport et entités (accesseurs générés par Lombok),
+                      configurations, référentiels et clients (interfaces déclaratives),
+                      convertisseurs et contrôleurs (adaptation sans règle métier), classes
+                      de démarrage. Les inclure ferait du seuil un indicateur trompeur :
+                      atteignable en testant des accesseurs, et hors d'atteinte dès qu'un
+                      module contient beaucoup de code sans logique.
+                    -->
+                    <excludes>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/configuration/**</exclude>
+                        <exclude>**/mapper/**</exclude>
+                        <exclude>**/client/**</exclude>
+                        <exclude>**/repository/**</exclude>
+                        <exclude>**/controller/**</exclude>
+                        <exclude>**/dbchangelogs/**</exclude>
+                        <exclude>**/*Application.class</exclude>
+                        <!--
+                          Services d'appel de l'interface web : ils ne font que composer une
+                          URL et déléguer au client de la passerelle, lequel est testé. Les
+                          mesurer reviendrait à compter des lignes sans décision.
+                        -->
+                        <exclude>**/service/*ApiService.class</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Non bloquant : le déficit de couverture est signalé, pas sanctionné. -->
+                            <haltOnFailure>false</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.couverture.minimale}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Style maison vérifié dès la phase validate, rapport indicatif. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>${config.qualite.dir}/checkstyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>${config.qualite.dir}/checkstyle/suppressions.xml</suppressionsLocation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <consoleOutput>true</consoleOutput>
+                    <!-- Non bloquant : les violations sont affichées sans casser le build. -->
+                    <failOnViolation>false</failOnViolation>
+                    <violationSeverity>error</violationSeverity>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle-validation</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Recherche de bugs dans le bytecode, complétée par les règles de sécurité. -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.plugin.version}</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Medium</threshold>
+                    <!-- Non bloquant : rapport indicatif. -->
+                    <failOnError>false</failOnError>
+                    <includeTests>true</includeTests>
+                    <!-- Faux positifs assumés, justifiés un par un dans le fichier. -->
+                    <excludeFilterFile>${config.qualite.dir}/spotbugs/exclude.xml</excludeFilterFile>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>${findsecbugs.version}</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotbugs-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Conception, complexité, code mort et duplication (CPD). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${pmd.plugin.version}</version>
+                <configuration>
+                    <!-- Non bloquant : rapport indicatif. -->
+                    <failOnViolation>false</failOnViolation>
+                    <printFailingErrors>true</printFailingErrors>
+                    <includeTests>true</includeTests>
+                    <minimumTokens>100</minimumTokens>
+                    <rulesets>
+                        <ruleset>${config.qualite.dir}/pmd/ruleset.xml</ruleset>
+                    </rulesets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pmd-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                            <goal>cpd-check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Génération du site de rapports (./mvnw clean verify site). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${site.plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <!-- Informations générales du projet : dépendances, plugins, modules. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${project-info.plugin.version}</version>
+            </plugin>
+
+            <!-- Code source croisé : cible des liens des rapports Checkstyle et PMD. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>${jxr.plugin.version}</version>
+            </plugin>
+
+            <!-- Javadoc française du code principal. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc.plugin.version}</version>
+                <configuration>
+                    <locale>fr</locale>
+                    <doclint>none</doclint>
+                    <quiet>true</quiet>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Rapport Checkstyle, aligné sur la configuration du build. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin.version}</version>
+                <configuration>
+                    <configLocation>${config.qualite.dir}/checkstyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>${config.qualite.dir}/checkstyle/suppressions.xml</suppressionsLocation>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>checkstyle</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Rapports PMD et CPD, alignés sur la configuration du build. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${pmd.plugin.version}</version>
+                <configuration>
+                    <rulesets>
+                        <ruleset>${config.qualite.dir}/pmd/ruleset.xml</ruleset>
+                    </rulesets>
+                    <includeTests>true</includeTests>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>pmd</report>
+                            <report>cpd</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Tableau de couverture JaCoCo (lit target/jacoco.exec). -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <!-- Résultats des tests (lit target/surefire-reports). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${surefire-report.plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report-only</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
+</project>

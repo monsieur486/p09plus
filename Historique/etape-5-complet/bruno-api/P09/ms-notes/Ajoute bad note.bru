@@ -1,0 +1,27 @@
+meta {
+  name: Ajoute bad note
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://127.0.0.1:9200/patients/5/notes
+  body: json
+  auth: basic
+}
+
+auth:basic {
+  username: app_user
+  password: app_password
+}
+
+body:json {
+  {
+      "content": ""
+    }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

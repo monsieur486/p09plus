@@ -1,0 +1,21 @@
+meta {
+  name: Toutes les notes evaluation
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://127.0.0.1:9300/patients/40/evaluation
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: app_user
+  password: app_password
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

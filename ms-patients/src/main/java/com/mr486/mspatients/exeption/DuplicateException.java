@@ -8,7 +8,7 @@ package com.mr486.mspatients.exeption;
 public class DuplicateException extends RuntimeException {
 
   /**
-   * Constructs a new NotFoundException with the specified detail message.
+   * Constructs a new ResourceNotFoundException with the specified detail message.
    *
    * @param message the detail message explaining the reason for the exception
    */

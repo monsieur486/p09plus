@@ -16,7 +16,11 @@ spring:
       ddl-auto: validate
 
   liquibase:
-    change-log: classpath:db/changelog/master.xml
+    change-log: classpath:db/changelog/master.
+
+  web:
+    resources:
+      add-mappings: false   # évite que les ressources statiques interceptent les 404
 
 security:
   app-user:

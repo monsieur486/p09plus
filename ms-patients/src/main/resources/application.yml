@@ -18,6 +18,10 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/master.xml
 
+  web:
+    resources:
+      add-mappings: false   # évite que les ressources statiques interceptent les 404
+
 security:
   app-user:
     username: ${APP_USERNAME:app_user}

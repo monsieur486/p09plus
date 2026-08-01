@@ -5,14 +5,14 @@ package com.mr486.mspatients.exeption;
  * This custom exception is used to indicate errors related to the absence
  * of an entity in the system.
  */
-public class NotFoundException extends RuntimeException {
+public class ResourceNotFoundException extends RuntimeException {
 
   /**
-   * Constructs a new NotFoundException with the specified detail message.
+   * Constructs a new ResourceNotFoundException with the specified detail message.
    *
    * @param message the detail message explaining the reason for the exception
    */
-  public NotFoundException(String message) {
+  public ResourceNotFoundException(String message) {
     super(message);
   }
 }

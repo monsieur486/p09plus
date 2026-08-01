@@ -2,7 +2,7 @@ package com.mr486.mspatients.service;
 
 import com.mr486.mspatients.dto.PatientForm;
 import com.mr486.mspatients.exeption.DuplicateException;
-import com.mr486.mspatients.exeption.NotFoundException;
+import com.mr486.mspatients.exeption.ResourceNotFoundException;
 import com.mr486.mspatients.model.Patient;
 import com.mr486.mspatients.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class PatientService {
   public Patient findById(Long id) {
     return patientRepository
             .findById(id)
-            .orElseThrow(() -> new NotFoundException("Aucun patient avec l'id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Aucun patient avec l'id: " + id));
   }
 
   public Patient savePatient(PatientForm patientForm) {
@@ -47,7 +47,7 @@ public class PatientService {
 
   public Patient updatePatient(Long id, PatientForm patientForm) {
     Patient existing = patientRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Aucun patient avec l'id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Aucun patient avec l'id: " + id));
 
     existing.setFirstName(patientForm.getFirstName());
     existing.setLastName(patientForm.getLastName());

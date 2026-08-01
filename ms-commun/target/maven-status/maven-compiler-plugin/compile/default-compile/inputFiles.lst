@@ -1,0 +1,12 @@
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/configuration/ConstantesApplication.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/configuration/DocumentationApiConfiguration.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/configuration/SecuriteApiConfiguration.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/ErrorResponse.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/NoteDto.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/PageDto.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/PatientDto.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/PatientForm.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/exception/DuplicateException.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/exception/GlobalExceptionHandler.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/exception/ResourceNotFoundException.java
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/exception/ServiceIndisponibleException.java

@@ -1,0 +1,16 @@
+#Sat Aug 01 12:35:59 CEST 2026
+configuration*?=DC51A8DD90340747BAEE171B35DA5163D85D7CA2
+module-resource*?\:/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/target/checkstyle-suppressions.xml=71B49248DF6F4A236D8ADB5AF3BB8135DA00F20F
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/exception/DuplicateException.java=1785575746500
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/configuration/DocumentationApiConfiguration.java=1785576924503
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/exception/ResourceNotFoundException.java=1785575741735
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/configuration/ConstantesApplication.java=1785578960532
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/configuration/SecuriteApiConfiguration.java=1785576933686
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/PatientDto.java=1785575720513
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/exception/GlobalExceptionHandler.java=1785575982254
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/ErrorResponse.java=1785575714498
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/PageDto.java=1785578954054
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/PatientForm.java=1785575730505
+module-resource*?\:checkstyle-xpath-suppressions.xml=838ED714C6169F103988E82912D55FDC993824AB
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/dto/NoteDto.java=1785575734230
+/home/mr486/Developpement/OpenClassRoom/Exos/LAST-P09/ms-commun/src/main/java/com/mr486/commun/exception/ServiceIndisponibleException.java=1785575812923

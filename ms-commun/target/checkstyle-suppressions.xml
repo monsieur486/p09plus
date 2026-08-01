@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<!--
+  Suppressions ciblées. Chaque entrée porte sa justification : on neutralise un contrôle
+  là où il ne rend pas le code plus clair, jamais pour faire taire un rapport.
+-->
+<suppressions>
+
+    <!--
+      MagicNumber dans les tests : un scénario se lit mieux avec ses valeurs en clair
+      (« un homme de 25 ans avec 3 déclencheurs ») qu'avec des constantes à déréférencer.
+      Ces valeurs décrivent le cas de test, elles ne pilotent aucune règle métier — celles-ci
+      vivent dans les classes Constantes* du code de production, où le contrôle reste actif.
+      Même tolérance que PMD, qui exempte déjà les tests d'AvoidDuplicateLiterals.
+    -->
+    <suppress files="[\\/]src[\\/]test[\\/]java[\\/]" checks="MagicNumber"/>
+
+</suppressions>

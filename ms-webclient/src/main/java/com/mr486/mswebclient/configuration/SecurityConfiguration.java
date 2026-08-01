@@ -27,8 +27,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    /** Pages accessibles sans authentification. */
-    private static final String[] PAGES_PUBLIQUES = {"/", "/home"};
+    /**
+     * Chemins accessibles sans authentification.
+     *
+     * <p>Les ressources statiques en font partie : la feuille de style et les scripts sont
+     * nécessaires à l'affichage de la page de connexion elle-même. Les protéger les ferait
+     * rediriger vers cette page, qui s'afficherait alors sans mise en forme.</p>
+     */
+    private static final String[] PAGES_PUBLIQUES = {"/", "/home", "/webjars/**"};
 
     /** Identifiant du compte praticien, injecté depuis la configuration. */
     @Value("${app.auth.username}")

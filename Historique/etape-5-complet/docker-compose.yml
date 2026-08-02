@@ -55,6 +55,9 @@ services:
       context: .
       dockerfile: ms-patients/Dockerfile
     profiles: ["fullstack"]
+    # Nombre d'instances, lu dans le .env par Docker Compose.
+    deploy:
+      replicas: ${REPLICA_MS_PATIENTS:-2}
     depends_on:
       - ms-eureka
       - patients-db
@@ -70,6 +73,9 @@ services:
       context: .
       dockerfile: ms-notes/Dockerfile
     profiles: ["fullstack"]
+    # Nombre d'instances, lu dans le .env par Docker Compose.
+    deploy:
+      replicas: ${REPLICA_MS_NOTES:-2}
     depends_on:
       - ms-eureka
       - notes-db
@@ -85,6 +91,9 @@ services:
       context: .
       dockerfile: ms-risque/Dockerfile
     profiles: ["fullstack"]
+    # Nombre d'instances, lu dans le .env par Docker Compose.
+    deploy:
+      replicas: ${REPLICA_MS_RISQUE:-2}
     depends_on:
       - ms-eureka
       - ms-gateway

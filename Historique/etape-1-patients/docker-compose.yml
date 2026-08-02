@@ -41,6 +41,8 @@ services:
       context: .
       dockerfile: ms-patients/Dockerfile
     profiles: ["fullstack"]
+    deploy:
+      replicas: ${REPLICA_MS_PATIENTS:-2}
     depends_on:
       - ms-eureka
       - patients-db

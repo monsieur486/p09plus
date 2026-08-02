@@ -49,6 +49,26 @@ services:
     volumes:
       - database-data:/data/db
 
+  # Applique les migrations Liquibase une fois pour toutes, puis s'arrête. Sans ce
+  # préalable, plusieurs instances lancées ensemble sur une base vierge créent la table
+  # d'historique en même temps et l'une d'elles échoue au démarrage.
+  ms-patients-migration:
+    build:
+      # Contexte à la racine : le module hérite du pom parent et dépend de ms-commun.
+      context: .
+      dockerfile: ms-patients/Dockerfile
+    profiles: ["fullstack"]
+    depends_on:
+      - patients-db
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      # Ni serveur web ni enregistrement au registre : le conteneur migre et rend la main.
+      SPRING_MAIN_WEB_APPLICATION_TYPE: none
+      EUREKA_CLIENT_ENABLED: "false"
+      APP_USERNAME: ${APP_USERNAME:-app_user}
+      APP_PASSWORD: ${APP_PASSWORD:-app_password}
+    restart: "no"
+
   ms-patients:
     build:
       # Contexte à la racine : le module hérite du pom parent et dépend de ms-commun.
@@ -59,9 +79,13 @@ services:
     deploy:
       replicas: ${REPLICA_MS_PATIENTS:-2}
     depends_on:
-      - ms-eureka
-      - patients-db
-      - ms-gateway
+      ms-eureka:
+        condition: service_started
+      ms-gateway:
+        condition: service_started
+      # Le schéma est déjà en place quand les instances démarrent.
+      ms-patients-migration:
+        condition: service_completed_successfully
     environment:
       SPRING_PROFILES_ACTIVE: docker
       APP_USERNAME: ${APP_USERNAME:-app_user}

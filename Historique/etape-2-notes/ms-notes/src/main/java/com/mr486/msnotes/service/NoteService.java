@@ -3,6 +3,7 @@ package com.mr486.msnotes.service;
 import com.mr486.commun.dto.NoteDto;
 import com.mr486.msnotes.model.Note;
 import com.mr486.msnotes.repository.NoteRepository;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,12 @@ import org.springframework.stereotype.Service;
 public class NoteService {
     private final NoteRepository noteRepository;
 
+    private final Clock horloge;
+
     public List<Note> findByPatientId(Long patientId) {
         List<Note> notes = noteRepository.findByPatientIdOrderByCreatedDateDesc(patientId);
         if (notes.isEmpty()) {
-            log.warn("aucune note enregistrée pour le patient {}", patientId);
+            log.debug("aucune note enregistrée pour le patient {}", patientId);
         }
         return notes;
     }
@@ -34,7 +37,7 @@ public class NoteService {
         return Note.builder()
                 .patientId(patientId)
                 .content(noteDto.getContent())
-                .createdDate(Instant.now())
+                .createdDate(Instant.now(horloge))
                 .build();
     }
 }

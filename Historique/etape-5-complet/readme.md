@@ -68,13 +68,17 @@ l'étape**, pas depuis celle du dépôt.
 
 ```bash
 ./mvnw verify                  # compile, teste, et produit les rapports qualité
-./mvnw clean verify site       # + site HTML dans target/site (couverture, Checkstyle, PMD, Javadoc)
+./mvnw clean verify site site:stage   # + site HTML assemblé dans target/staging
 ./mvnw -pl ms-risque test      # tests d'un seul module
 ./mvnw -pl ms-risque -Dtest=EvaluationServiceTest test          # une classe
 ./mvnw -pl ms-risque -Dtest=EvaluationServiceTest#aucunDeclencheur_retourneNone test   # une méthode
 ```
 
-Une fois le site produit, ouvrir **`documentation-projet.html`** à la racine de l'étape :
+Le but de `site:stage` est de rassembler les rapports des modules dans
+`target/staging` : sans lui, le menu « Modules » du rapport agrégé renvoie vers des
+pages absentes, chaque module écrivant dans son propre `target/site`.
+
+Une fois le site assemblé, ouvrir **`documentation-projet.html`** à la racine de l'étape :
 cette page rassemble les liens vers le rapport agrégé et vers le site de chaque
 microservice (Javadoc, code source croisé, Checkstyle, PMD, couverture, résultats des
 tests). Les liens restent vides tant que la commande n'a pas tourné : `target/` n'est pas

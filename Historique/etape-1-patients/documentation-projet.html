@@ -70,14 +70,16 @@ footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--bor
     <p class="sous-titre">Étape 1 — Fiches patients — Socle du projet : registre, passerelle, bibliothèque commune, fiches patients et interface web.</p>
 
     <div class="encadre">
-        Les sites sont produits par <code>./mvnw clean verify site</code>, lancé à la racine de
-        l'étape. Tant que la commande n'a pas été exécutée, les liens ci-dessous pointent vers
-        des fichiers absents : <code>target/</code> n'est pas versionné.
+        Les sites sont produits par <code>./mvnw clean verify site site:stage</code>, lancé à la
+        racine de l'étape. L'étape <code>site:stage</code> rassemble les rapports dans
+        <code>target/staging</code> : sans elle, le menu « Modules » du rapport agrégé pointe
+        vers des pages absentes. Tant que la commande n'a pas tourné, les liens ci-dessous
+        restent vides : <code>target/</code> n'est pas versionné.
     </div>
 
     <h2>Rapport agrégé</h2>
     <div class="grille">
-        <a class="carte" href="target/site/index.html">
+        <a class="carte" href="target/staging/index.html">
             <span class="carte-titre"><strong>Projet complet</strong><span class="port">p09plus</span></span>
             <span class="role">Vue d'ensemble</span>
             <p>Informations du projet, dépendances et liste des modules.</p>
@@ -86,27 +88,27 @@ footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--bor
 
     <h2>Sites des microservices</h2>
     <div class="grille">
-            <a class="carte" href="ms-commun/target/site/index.html">
+            <a class="carte" href="target/staging/ms-commun/index.html">
                 <span class="carte-titre"><strong>ms-commun</strong><span class="port">—</span></span>
                 <span class="role">Bibliothèque partagée</span>
                 <p>DTO d'API, exceptions métier, gestionnaire d'erreurs et configurations importées par les autres services.</p>
             </a>
-            <a class="carte" href="ms-eureka/target/site/index.html">
+            <a class="carte" href="target/staging/ms-eureka/index.html">
                 <span class="carte-titre"><strong>ms-eureka</strong><span class="port">8761</span></span>
                 <span class="role">Registre de services</span>
                 <p>Annuaire où chaque service s'enregistre et se découvre. Analyses qualité désactivées : le module ne porte qu'une classe d'amorçage.</p>
             </a>
-            <a class="carte" href="ms-gateway/target/site/index.html">
+            <a class="carte" href="target/staging/ms-gateway/index.html">
                 <span class="carte-titre"><strong>ms-gateway</strong><span class="port">9000</span></span>
                 <span class="role">Passerelle</span>
                 <p>Unique point d'entrée des API. Aucune route déclarée : le routage se déduit du registre. Analyses qualité désactivées.</p>
             </a>
-            <a class="carte" href="ms-patients/target/site/index.html">
+            <a class="carte" href="target/staging/ms-patients/index.html">
                 <span class="carte-titre"><strong>ms-patients</strong><span class="port">9100</span></span>
                 <span class="role">Fiches patients</span>
                 <p>Gestion des patients sur PostgreSQL, schéma versionné par Liquibase.</p>
             </a>
-            <a class="carte" href="ms-webclient/target/site/index.html">
+            <a class="carte" href="target/staging/ms-webclient/index.html">
                 <span class="carte-titre"><strong>ms-webclient</strong><span class="port">8080</span></span>
                 <span class="role">Interface web</span>
                 <p>IHM Thymeleaf, seule interface exposée à l'utilisateur.</p>

@@ -58,6 +58,13 @@
         <surefire-report.plugin.version>3.5.4</surefire-report.plugin.version>
     </properties>
 
+    <distributionManagement>
+        <site>
+            <id>documentation-locale</id>
+            <url>file:///documentation/p09plus</url>
+        </site>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
 

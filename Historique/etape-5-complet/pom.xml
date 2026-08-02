@@ -72,6 +72,22 @@
         <surefire-report.plugin.version>3.5.4</surefire-report.plugin.version>
     </properties>
 
+    <!--
+      Destination du site assemblé. Sans elle, `site` produit un rapport agrégé dont le menu
+      « Modules » pointe vers des chemins inexistants : chaque module écrit dans son propre
+      target/site, que le parent ne sait pas atteindre. `site:stage` rassemble le tout dans
+      target/staging, où la navigation entre microservices fonctionne. L'URL n'est jamais
+      appelée : seule sa structure sert à calculer les chemins relatifs entre le parent et
+      ses modules, d'où une valeur fixe — ${project.basedir} serait résolu module par module
+      et disperserait le site assemblé dans chaque target.
+    -->
+    <distributionManagement>
+        <site>
+            <id>documentation-locale</id>
+            <url>file:///documentation/p09plus</url>
+        </site>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <!-- Bibliothèque maison : DTO d'API et exceptions métier partagés. -->

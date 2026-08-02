@@ -72,10 +72,14 @@ Projet Maven multi-module : les commandes se lancent **depuis la racine de l'ét
 
 ```bash
 ./mvnw verify          # compile, teste et produit les rapports qualité
-./mvnw clean verify site
+./mvnw clean verify site site:stage
 ```
 
-Une fois le site produit, ouvrir **`documentation-projet.html`** à la racine de l'étape :
+Le but de `site:stage` est de rassembler les rapports des modules dans
+`target/staging` : sans lui, le menu « Modules » du rapport agrégé renvoie vers des
+pages absentes, chaque module écrivant dans son propre `target/site`.
+
+Une fois le site assemblé, ouvrir **`documentation-projet.html`** à la racine de l'étape :
 cette page rassemble les liens vers le rapport agrégé et vers le site de chaque
 microservice (Javadoc, code source croisé, Checkstyle, PMD, couverture, résultats des
 tests). Les liens restent vides tant que la commande n'a pas tourné : `target/` n'est pas

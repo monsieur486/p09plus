@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.mr486.commun.exception.ResourceNotFoundException;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
@@ -71,10 +73,13 @@ class ClientPasserelleTest {
                 any(HttpEntity.class), any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok("créé"));
 
-        String resultat = clientPasserelle.echange(
-                HttpMethod.POST, CHEMIN, "charge utile", TYPE_ATTENDU, SERVICE);
+        clientPasserelle.echange(HttpMethod.POST, CHEMIN, "charge utile", TYPE_ATTENDU, SERVICE);
 
-        assertThat(resultat).isEqualTo("créé");
+        ArgumentCaptor<HttpEntity<Object>> requeteEnvoyee = ArgumentCaptor.captor();
+        verify(restTemplate).exchange(
+                anyString(), eq(HttpMethod.POST),
+                requeteEnvoyee.capture(), any(ParameterizedTypeReference.class));
+        assertThat(requeteEnvoyee.getValue().getBody()).isEqualTo("charge utile");
     }
 
     @Test
@@ -105,8 +110,8 @@ class ClientPasserelleTest {
     }
 
     @Test
-    @DisplayName("une erreur serveur devient elle aussi une indisponibilité")
-    void erreurServeur_leveServiceIndisponible() {
+    @DisplayName("une erreur 4xx autre que 404 devient elle aussi une indisponibilité")
+    void erreur4xxAutreQue404_leveServiceIndisponible() {
         when(restTemplate.exchange(
                 anyString(), any(HttpMethod.class), any(), any(ParameterizedTypeReference.class)))
                 .thenThrow(HttpClientErrorException.create(

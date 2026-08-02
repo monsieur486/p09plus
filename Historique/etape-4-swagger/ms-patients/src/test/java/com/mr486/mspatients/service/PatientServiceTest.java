@@ -15,11 +15,11 @@ import com.mr486.mspatients.model.Patient;
 import com.mr486.mspatients.repository.PatientRepository;
 import java.time.LocalDate;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,8 +34,12 @@ class PatientServiceTest {
     @Mock
     private PatientRepository patientRepository;
 
-    @InjectMocks
     private PatientService patientService;
+
+    @BeforeEach
+    void initialiseLeService() {
+        patientService = new PatientService(patientRepository);
+    }
 
     @Test
     @DisplayName("un identifiant inconnu lève ResourceNotFoundException")

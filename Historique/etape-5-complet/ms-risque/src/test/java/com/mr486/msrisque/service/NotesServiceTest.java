@@ -10,10 +10,10 @@ import com.mr486.commun.exception.ServiceIndisponibleException;
 import com.mr486.msrisque.client.NoteClient;
 import feign.FeignException;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,8 +34,12 @@ class NotesServiceTest {
     @Mock
     private NoteClient noteClient;
 
-    @InjectMocks
     private NotesService notesService;
+
+    @BeforeEach
+    void initialiseLeService() {
+        notesService = new NotesService(noteClient);
+    }
 
     @Test
     @DisplayName("les notes du patient sont remontées dans leur ordre d'origine")

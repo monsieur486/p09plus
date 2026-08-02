@@ -8,10 +8,10 @@ import com.mr486.commun.exception.ResourceNotFoundException;
 import com.mr486.commun.exception.ServiceIndisponibleException;
 import com.mr486.msrisque.client.PatientClient;
 import feign.FeignException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -23,8 +23,12 @@ class PatientServiceTest {
     @Mock
     private PatientClient patientClient;
 
-    @InjectMocks
     private PatientService patientService;
+
+    @BeforeEach
+    void initialiseLeService() {
+        patientService = new PatientService(patientClient);
+    }
 
     @Test
     @DisplayName("une fiche absente devient une ressource introuvable")

@@ -11,6 +11,3 @@ target/
 
 # Divers
 *.log
-
-# Consignes locales destinées à l'assistant, propres au poste de travail.
-CLAUDE.md

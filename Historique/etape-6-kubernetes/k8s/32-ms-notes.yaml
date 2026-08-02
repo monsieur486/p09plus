@@ -1,9 +1,12 @@
 # Notes de consultation — deux instances.
 #
-# Pas d'attente préalable ici, contrairement à ms-patients : Mongock pose un verrou avant
+# Pas de Job de migration ici, contrairement à ms-patients : Mongock pose un verrou avant
 # d'exécuter ses migrations, les instances peuvent donc démarrer ensemble sur une base
 # vierge sans se disputer le changelog. C'est ce verrou qui rend la réplication possible
 # sans autre précaution.
+#
+# L'initContainer ci-dessous répond à un autre besoin : attendre que la base réponde, et
+# non qu'une migration soit passée.
 apiVersion: v1
 kind: Service
 metadata:
@@ -37,6 +40,25 @@ spec:
         app.kubernetes.io/name: ms-notes
         app.kubernetes.io/part-of: p09plus
     spec:
+      initContainers:
+        # La base et ce service démarrent de front, Kubernetes ne séquençant rien de
+        # lui-même. Sans cette attente, Mongock crée ses index sur une base qui n'accepte
+        # pas encore de connexion, l'application meurt et le pod redémarre : la pile finit
+        # par se stabiliser, mais au prix d'un échec visible à chaque démarrage à froid.
+        - name: attend-notes-db
+          image: mongo:8.0.14
+          command: ["sh", "-c"]
+          args:
+            - |
+              until mongosh --quiet --host notes-db \
+                    -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" \
+                    --eval 'db.runCommand({ ping: 1 })' >/dev/null 2>&1; do
+                echo "notes-db pas encore prête, nouvelle tentative dans 3 s"
+                sleep 3
+              done
+          envFrom:
+            - secretRef:
+                name: p09plus-secrets
       containers:
         - name: ms-notes
           image: p09plus/ms-notes:local

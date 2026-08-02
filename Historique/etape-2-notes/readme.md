@@ -75,8 +75,7 @@ Le but de `site:stage` est de rassembler les rapports des modules dans
 `target/staging` : sans lui, le menu « Modules » du rapport agrégé renvoie vers des
 pages absentes, chaque module écrivant dans son propre `target/site`.
 
-Une fois le site assemblé, ouvrir **`documentation-projet.html`** à la racine de l'étape :
-cette page rassemble les liens vers le rapport agrégé et vers le site de chaque
-microservice (Javadoc, code source croisé, Checkstyle, PMD, couverture, résultats des
-tests). Les liens restent vides tant que la commande n'a pas tourné : `target/` n'est pas
-versionné.
+Une fois le site assemblé, ouvrir **`target/staging/index.html`** : ce rapport agrégé
+donne accès, par son menu « Modules », au site de chaque microservice — Javadoc, code
+source croisé, Checkstyle, PMD, couverture JaCoCo et résultats des tests. Le dossier
+`target/` n'étant pas versionné, la page n'existe qu'après la commande ci-dessus.

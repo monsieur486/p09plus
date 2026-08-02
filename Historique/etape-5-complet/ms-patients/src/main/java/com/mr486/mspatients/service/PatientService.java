@@ -5,11 +5,10 @@ import com.mr486.commun.exception.DuplicateException;
 import com.mr486.commun.exception.ResourceNotFoundException;
 import com.mr486.mspatients.model.Patient;
 import com.mr486.mspatients.repository.PatientRepository;
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,20 +28,15 @@ public class PatientService {
     private final PatientRepository patientRepository;
 
     /**
-     * Retourne une page de patients enregistrés.
+     * Retourne toutes les fiches patients enregistrées.
      *
-     * <p>La lecture est paginée sans exception : le nombre de fiches n'étant pas borné,
-     * tout ramener en une fois exposerait à une dégradation progressive à mesure que la
-     * base grossit.</p>
+     * <p><b>Exemple :</b> {@code findAll()} retourne les quatre fiches de démonstration,
+     * et une liste vide tant qu'aucun patient n'a été créé.</p>
      *
-     * <p><b>Exemple :</b> {@code findAll(PageRequest.of(0, 10))} retourne les dix premiers
-     * patients, et une page vide tant qu'aucun patient n'a été créé.</p>
-     *
-     * @param pagination page demandée et nombre d'éléments par page
-     * @return la page de patients correspondante, éventuellement vide
+     * @return les fiches patients enregistrées, éventuellement vide
      */
-    public Page<Patient> findAll(Pageable pagination) {
-        return patientRepository.findAll(pagination);
+    public List<Patient> findAll() {
+        return patientRepository.findAll();
     }
 
     /**

@@ -1,9 +1,8 @@
 package com.mr486.mspatients.mapper;
 
-import com.mr486.commun.dto.PageDto;
 import com.mr486.commun.dto.PatientDto;
 import com.mr486.mspatients.model.Patient;
-import org.springframework.data.domain.Page;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
 /**
@@ -41,24 +40,15 @@ public class PatientMapper {
     }
 
     /**
-     * Convertit une page de fiches patients en page d'objets de transport.
+     * Convertit une liste de fiches patients en objets de transport.
      *
-     * <p>Les informations de pagination sont recopiées telles quelles, afin que le client
-     * puisse construire sa navigation sans second appel.</p>
+     * <p><b>Exemple :</b> les quatre fiches de démonstration produisent une liste de
+     * quatre {@link PatientDto}, dans le même ordre.</p>
      *
-     * <p><b>Exemple :</b> une page de dix patients sur un total de quarante-sept produit un
-     * {@link PageDto} dont {@code totalPages} vaut 5.</p>
-     *
-     * @param patients page de fiches patients issue de la base
-     * @return la page exposée par l'API, dans le même ordre
+     * @param patients fiches patients issues de la base
+     * @return les représentations exposées par l'API, dans le même ordre
      */
-    public PageDto<PatientDto> versPageDto(Page<Patient> patients) {
-        return PageDto.<PatientDto>builder()
-                .contenu(patients.getContent().stream().map(this::versDto).toList())
-                .page(patients.getNumber())
-                .taille(patients.getSize())
-                .totalElements(patients.getTotalElements())
-                .totalPages(patients.getTotalPages())
-                .build();
+    public List<PatientDto> versListeDto(List<Patient> patients) {
+        return patients.stream().map(this::versDto).toList();
     }
 }

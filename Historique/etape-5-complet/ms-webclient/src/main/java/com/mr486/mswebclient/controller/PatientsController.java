@@ -12,15 +12,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * Affiche la liste paginée des patients et le formulaire de création.
+ * Affiche la liste des patients et le formulaire de création.
  *
- * <p><b>Exemple :</b> {@code GET /app/dashboard?page=1} affiche la deuxième page du
- * tableau de bord ; {@code POST /app/dashboard/ajout} enregistre un patient puis y
- * redirige avec un message de confirmation.</p>
+ * <p><b>Exemple :</b> {@code GET /app/dashboard} affiche le tableau de bord ;
+ * {@code POST /app/dashboard/ajout} enregistre un patient puis y redirige avec un message
+ * de confirmation.</p>
  */
 @Controller
 @RequestMapping("/app")
@@ -33,18 +32,17 @@ public class PatientsController {
     private final PatientApiService patientApiService;
 
     /**
-     * Affiche une page de la liste des patients.
+     * Affiche la liste des patients.
      *
-     * <p><b>Exemple :</b> {@code GET /app/dashboard} affiche la première page, vide tant
+     * <p><b>Exemple :</b> {@code GET /app/dashboard} affiche le tableau de bord, vide tant
      * qu'aucun patient n'a été créé.</p>
      *
-     * @param page  numéro de la page demandée, à partir de zéro
      * @param model modèle transmis à la vue
      * @return le nom de la vue listant les patients
      */
     @GetMapping("/dashboard")
-    public String dashboard(@RequestParam(defaultValue = "0") int page, Model model) {
-        model.addAttribute("pagePatients", patientApiService.listeLesPatients(Math.max(page, 0)));
+    public String dashboard(Model model) {
+        model.addAttribute("patients", patientApiService.listeLesPatients());
         return "patients";
     }
 

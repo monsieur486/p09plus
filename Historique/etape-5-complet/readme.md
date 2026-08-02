@@ -94,26 +94,19 @@ Toutes les API exigent une authentification HTTP Basic et sont appelées via la 
 
 | Méthode | Chemin | Rôle |
 |---|---|---|
-| `GET` | `/ms-patients/patients?page=0&size=10` | liste paginée des patients |
+| `GET` | `/ms-patients/patients` | liste des patients |
 | `GET` | `/ms-patients/patients/{id}` | fiche d'un patient |
 | `POST` | `/ms-patients/patients` | création d'un patient |
 | `PUT` | `/ms-patients/patients/{id}` | mise à jour d'un patient |
-| `GET` | `/ms-notes/patients/{id}/notes?page=0&size=10` | notes paginées d'un patient |
+| `GET` | `/ms-notes/patients/{id}/notes` | notes d'un patient |
 | `POST` | `/ms-notes/patients/{id}/notes` | ajout d'une note |
 | `GET` | `/ms-risque/evaluation/{id}` | niveau de risque d'un patient |
 
-Les deux listes sont **paginées** : `page` commence à zéro, `size` vaut 10 par défaut et
-est plafonné à 100. La réponse porte le contenu et de quoi construire la navigation :
+Les deux listes sont renvoyées telles quelles, sans enveloppe :
 
 ```json
-{
-  "contenu": [ { "id": 1, "firstName": "Jean", "lastName": "Dupont", "birthDate": "1990-05-12",
-                 "gender": "M", "postalAddress": "1 rue des Lilas", "phoneNumber": "100-222-3333" } ],
-  "page": 0,
-  "taille": 10,
-  "totalElements": 47,
-  "totalPages": 5
-}
+[ { "id": 1, "firstName": "Jean", "lastName": "Dupont", "birthDate": "1990-05-12",
+    "gender": "M", "postalAddress": "1 rue des Lilas", "phoneNumber": "100-222-3333" } ]
 ```
 
 Création d'un patient :

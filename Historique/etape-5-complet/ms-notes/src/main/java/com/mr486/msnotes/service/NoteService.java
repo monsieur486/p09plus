@@ -4,10 +4,9 @@ import com.mr486.commun.dto.NoteDto;
 import com.mr486.msnotes.model.Note;
 import com.mr486.msnotes.repository.NoteRepository;
 import java.time.Instant;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,20 +26,16 @@ public class NoteService {
     private final NoteRepository noteRepository;
 
     /**
-     * Retourne une page de notes d'un patient, de la plus récente à la plus ancienne.
+     * Retourne les notes d'un patient, de la plus récente à la plus ancienne.
      *
-     * <p>La lecture est paginée : le nombre de notes d'un patient suivi de longue date
-     * n'est pas borné, et tout ramener en une fois dégraderait l'affichage de sa fiche.</p>
+     * <p><b>Exemple :</b> {@code findByPatientId(9L)} retourne une liste vide si aucune
+     * note n'a été saisie pour ce patient.</p>
      *
-     * <p><b>Exemple :</b> {@code findByPatientId(9L, pagination)} retourne une page vide si
-     * aucune note n'a été saisie pour ce patient.</p>
-     *
-     * @param patientId  identifiant du patient concerné
-     * @param pagination page demandée et nombre d'éléments par page
-     * @return la page de notes du patient, éventuellement vide
+     * @param patientId identifiant du patient concerné
+     * @return les notes du patient, éventuellement vide
      */
-    public Page<Note> findByPatientId(Long patientId, Pageable pagination) {
-        Page<Note> notes = noteRepository.findByPatientIdOrderByCreatedDateDesc(patientId, pagination);
+    public List<Note> findByPatientId(Long patientId) {
+        List<Note> notes = noteRepository.findByPatientIdOrderByCreatedDateDesc(patientId);
         if (notes.isEmpty()) {
             log.warn("aucune note enregistrée pour le patient {}", patientId);
         }

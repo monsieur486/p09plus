@@ -1,7 +1,5 @@
 package com.mr486.mspatients.controller;
 
-import com.mr486.commun.configuration.ConstantesApplication;
-import com.mr486.commun.dto.PageDto;
 import com.mr486.commun.dto.PatientDto;
 import com.mr486.commun.dto.PatientForm;
 import com.mr486.mspatients.mapper.PatientMapper;
@@ -11,9 +9,8 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -43,26 +39,17 @@ public class PatientController {
     private final PatientMapper patientMapper;
 
     /**
-     * Retourne une page de patients.
+     * Retourne toutes les fiches patients.
      *
-     * <p>La taille demandée est ramenée à une borne haute : un client ne peut donc pas
-     * contourner la pagination en réclamant une page démesurée.</p>
+     * <p><b>Exemple :</b> {@code GET /patients} retourne la liste des fiches enregistrées,
+     * vide tant qu'aucun patient n'a été créé.</p>
      *
-     * <p><b>Exemple :</b> {@code GET /patients?page=0&size=10} retourne les dix premiers
-     * patients et le décompte total permettant de construire la navigation.</p>
-     *
-     * @param page numéro de la page demandée, à partir de zéro
-     * @param size nombre d'éléments par page
-     * @return la page de patients, avec un statut 200
+     * @return la liste des patients, avec un statut 200
      */
-    @Tag(name = "Récupère les patients par page")
+    @Tag(name = "Récupère tous les patients")
     @GetMapping(value = "/patients", produces = "application/json")
-    public ResponseEntity<PageDto<PatientDto>> getPatients(
-            @RequestParam(defaultValue = ConstantesApplication.PREMIERE_PAGE_TEXTE) int page,
-            @RequestParam(defaultValue = ConstantesApplication.TAILLE_PAGE_DEFAUT_TEXTE) int size) {
-        Pageable pagination = PageRequest.of(
-                Math.max(page, 0), Math.min(size, ConstantesApplication.TAILLE_PAGE_MAXIMALE));
-        return ResponseEntity.ok(patientMapper.versPageDto(patientService.findAll(pagination)));
+    public ResponseEntity<List<PatientDto>> getPatients() {
+        return ResponseEntity.ok(patientMapper.versListeDto(patientService.findAll()));
     }
 
     /**

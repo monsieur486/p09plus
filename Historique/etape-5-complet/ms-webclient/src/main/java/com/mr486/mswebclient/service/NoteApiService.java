@@ -1,9 +1,8 @@
 package com.mr486.mswebclient.service;
 
-import com.mr486.commun.configuration.ConstantesApplication;
 import com.mr486.commun.dto.NoteDto;
-import com.mr486.commun.dto.PageDto;
 import com.mr486.mswebclient.configuration.ConstantesWebclient;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 /**
  * Consulte et enrichit les notes d'un patient auprès du microservice dédié.
  *
- * <p><b>Exemple :</b> {@code listeLesNotes(2L)} retourne les notes affichées sur la page
+ * <p><b>Exemple :</b> {@code listeLesNotes(2L)} retourne les notes affichées sur la fiche
  * du patient 2, de la plus récente à la plus ancienne.</p>
  */
 @Service
@@ -22,22 +21,20 @@ public class NoteApiService {
     private final ClientPasserelle clientPasserelle;
 
     /**
-     * Retourne une page de notes d'un patient, de la plus récente à la plus ancienne.
+     * Retourne les notes d'un patient, de la plus récente à la plus ancienne.
      *
-     * <p><b>Exemple :</b> {@code listeLesNotes(9L, 0)} retourne une page vide si aucune
-     * note n'a été saisie pour ce patient.</p>
+     * <p><b>Exemple :</b> {@code listeLesNotes(9L)} retourne une liste vide si aucune note
+     * n'a été saisie pour ce patient.</p>
      *
      * @param patientId identifiant du patient concerné
-     * @param page      numéro de la page demandée, à partir de zéro
-     * @return la page de notes du patient
+     * @return les notes du patient
      */
-    public PageDto<NoteDto> listeLesNotes(Long patientId, int page) {
+    public List<NoteDto> listeLesNotes(Long patientId) {
         return clientPasserelle.echange(
                 HttpMethod.GET,
-                ConstantesWebclient.CHEMIN_NOTES + patientId + "/notes"
-                        + "?page=" + page + "&size=" + ConstantesApplication.TAILLE_PAGE_DEFAUT,
+                ConstantesWebclient.CHEMIN_NOTES + patientId + "/notes",
                 null,
-                new ParameterizedTypeReference<PageDto<NoteDto>>() {},
+                new ParameterizedTypeReference<List<NoteDto>>() {},
                 ConstantesWebclient.SERVICE_NOTES);
     }
 

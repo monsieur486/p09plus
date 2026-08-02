@@ -1,9 +1,8 @@
 package com.mr486.msnotes.mapper;
 
 import com.mr486.commun.dto.NoteDto;
-import com.mr486.commun.dto.PageDto;
 import com.mr486.msnotes.model.Note;
-import org.springframework.data.domain.Page;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,24 +33,15 @@ public class NoteMapper {
     }
 
     /**
-     * Convertit une page de notes stockées en page d'objets de transport.
+     * Convertit une liste de notes stockées en objets de transport.
      *
-     * <p>Les informations de pagination sont recopiées telles quelles, afin que le client
-     * puisse construire sa navigation sans second appel.</p>
+     * <p><b>Exemple :</b> les cinq notes d'un patient produisent une liste de cinq
+     * {@link NoteDto}, dans le même ordre.</p>
      *
-     * <p><b>Exemple :</b> une page de cinq notes sur un total de douze produit un
-     * {@link PageDto} dont {@code totalPages} vaut 3.</p>
-     *
-     * @param notes page de notes issue de la base documentaire
-     * @return la page exposée par l'API, dans le même ordre
+     * @param notes notes issues de la base documentaire
+     * @return les représentations exposées par l'API, dans le même ordre
      */
-    public PageDto<NoteDto> versPageDto(Page<Note> notes) {
-        return PageDto.<NoteDto>builder()
-                .contenu(notes.getContent().stream().map(this::versDto).toList())
-                .page(notes.getNumber())
-                .taille(notes.getSize())
-                .totalElements(notes.getTotalElements())
-                .totalPages(notes.getTotalPages())
-                .build();
+    public List<NoteDto> versListeDto(List<Note> notes) {
+        return notes.stream().map(this::versDto).toList();
     }
 }

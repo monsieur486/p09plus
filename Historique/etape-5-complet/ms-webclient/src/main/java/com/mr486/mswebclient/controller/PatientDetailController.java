@@ -16,18 +16,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Affiche la fiche complète d'un patient et son formulaire de modification.
  *
  * <p>La fiche rassemble en une seule page l'état civil, le niveau de risque évalué et les
- * notes paginées : le praticien dispose ainsi de tout le dossier sans naviguer entre
+ * notes du patient : le praticien dispose ainsi de tout le dossier sans naviguer entre
  * plusieurs écrans.</p>
  *
- * <p><b>Exemple :</b> {@code GET /app/dashboard/1?pageNotes=1} affiche la fiche du patient
- * 1 avec la deuxième page de ses notes.</p>
+ * <p><b>Exemple :</b> {@code GET /app/dashboard/1} affiche la fiche du patient 1 avec ses
+ * notes.</p>
  */
 @Controller
 @RequestMapping("/app")
@@ -45,24 +44,20 @@ public class PatientDetailController {
     private final EvaluationApiService evaluationApiService;
 
     /**
-     * Affiche la fiche complète d'un patient : état civil, risque et notes paginées.
+     * Affiche la fiche complète d'un patient : état civil, risque et notes.
      *
      * <p><b>Exemple :</b> {@code GET /app/dashboard/1} affiche la fiche du patient 1 avec
-     * la première page de ses notes et son niveau de risque.</p>
+     * ses notes et son niveau de risque.</p>
      *
-     * @param id        identifiant du patient à afficher
-     * @param pageNotes numéro de la page de notes demandée, à partir de zéro
-     * @param model     modèle transmis à la vue
+     * @param id    identifiant du patient à afficher
+     * @param model modèle transmis à la vue
      * @return le nom de la vue de détail
      */
     @GetMapping("/dashboard/{id}")
-    public String detail(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int pageNotes,
-            Model model) {
+    public String detail(@PathVariable Long id, Model model) {
         model.addAttribute("patient", patientApiService.recupereLePatient(id));
         model.addAttribute("evaluation", evaluationApiService.evalueLeRisque(id));
-        model.addAttribute("pageNotes", noteApiService.listeLesNotes(id, Math.max(pageNotes, 0)));
+        model.addAttribute("notes", noteApiService.listeLesNotes(id));
         model.addAttribute(ATTRIBUT_ID, id);
         return "patient-detail";
     }

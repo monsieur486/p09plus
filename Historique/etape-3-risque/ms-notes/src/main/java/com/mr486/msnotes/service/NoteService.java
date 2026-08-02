@@ -4,10 +4,9 @@ import com.mr486.commun.dto.NoteDto;
 import com.mr486.msnotes.model.Note;
 import com.mr486.msnotes.repository.NoteRepository;
 import java.time.Instant;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,8 +15,8 @@ import org.springframework.stereotype.Service;
 public class NoteService {
     private final NoteRepository noteRepository;
 
-    public Page<Note> findByPatientId(Long patientId, Pageable pagination) {
-        Page<Note> notes = noteRepository.findByPatientIdOrderByCreatedDateDesc(patientId, pagination);
+    public List<Note> findByPatientId(Long patientId) {
+        List<Note> notes = noteRepository.findByPatientIdOrderByCreatedDateDesc(patientId);
         if (notes.isEmpty()) {
             log.warn("aucune note enregistrée pour le patient {}", patientId);
         }

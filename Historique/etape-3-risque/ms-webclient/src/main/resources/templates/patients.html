@@ -14,11 +14,11 @@
         <a class="btn btn-primary" th:href="@{/app/dashboard/ajout}">Ajouter un patient</a>
     </div>
 
-    <div class="alert alert-warning" th:if="${pagePatients.totalElements == 0}">
+    <div class="alert alert-warning" th:if="${patients.isEmpty()}">
         Aucun patient enregistré pour le moment.
     </div>
 
-    <div class="card shadow-sm" th:if="${pagePatients.totalElements > 0}">
+    <div class="card shadow-sm" th:unless="${patients.isEmpty()}">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -31,7 +31,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="patient : ${pagePatients.contenu}">
+                <tr th:each="patient : ${patients}">
                     <td th:text="${patient.lastName}">Dupont</td>
                     <td th:text="${patient.firstName}">Jean</td>
                     <td th:text="${#temporals.format(patient.birthDate, 'dd/MM/yyyy')}">12/05/1990</td>
@@ -49,9 +49,8 @@
     </div>
 
     <p class="text-body-secondary mt-3 small">
-        <span th:text="${pagePatients.totalElements}">0</span> patient(s) au total
+        <span th:text="${patients.size()}">0</span> patient(s) au total
     </p>
-    <div th:replace="~{fragments/pagination :: pagination(${pagePatients}, '/app/dashboard', 'page')}"></div>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

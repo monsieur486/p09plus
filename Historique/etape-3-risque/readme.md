@@ -42,9 +42,9 @@ risque moindre. Les quatre patients de démonstration couvrent un niveau chacun.
 | `GET` | `/ms-risque/evaluation/{id}` | niveau de risque d'un patient |
 
 Ce service appelle `ms-patients` et `ms-notes` par le registre, sans passer par la
-passerelle. L'API des notes étant paginée, il en parcourt **toutes** les pages : s'arrêter
-à la première sous-estimerait le risque. Un service injoignable produit un `503` explicite
-plutôt qu'une erreur opaque.
+passerelle. Il compte les termes déclencheurs sur **toutes** les notes du patient : un
+dossier lu partiellement sous-estimerait le risque. Un service injoignable produit un `503`
+explicite plutôt qu'une erreur opaque.
 
 ## Étape suivante
 

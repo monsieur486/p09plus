@@ -1,9 +1,8 @@
 package com.mr486.mswebclient.service;
 
-import com.mr486.commun.configuration.ConstantesApplication;
 import com.mr486.commun.dto.NoteDto;
-import com.mr486.commun.dto.PageDto;
 import com.mr486.mswebclient.configuration.ConstantesWebclient;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -14,13 +13,12 @@ import org.springframework.stereotype.Service;
 public class NoteApiService {
     private final ClientPasserelle clientPasserelle;
 
-    public PageDto<NoteDto> listeLesNotes(Long patientId, int page) {
+    public List<NoteDto> listeLesNotes(Long patientId) {
         return clientPasserelle.echange(
                 HttpMethod.GET,
-                ConstantesWebclient.CHEMIN_NOTES + patientId + "/notes"
-                        + "?page=" + page + "&size=" + ConstantesApplication.TAILLE_PAGE_DEFAUT,
+                ConstantesWebclient.CHEMIN_NOTES + patientId + "/notes",
                 null,
-                new ParameterizedTypeReference<PageDto<NoteDto>>() {},
+                new ParameterizedTypeReference<List<NoteDto>>() {},
                 ConstantesWebclient.SERVICE_NOTES);
     }
 

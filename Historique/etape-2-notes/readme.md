@@ -10,8 +10,8 @@ une base documentaire — le format libre d'une note se prête mal à un schéma
 
 ## Ce que l'étape ajoute
 
-La fiche d'un patient présente désormais ses notes, de la plus récente à la plus ancienne
-et paginées, avec un formulaire d'ajout. Le reste est inchangé.
+La fiche d'un patient présente désormais ses notes, de la plus récente à la plus ancienne,
+avec un formulaire d'ajout. Le reste est inchangé.
 
 ## Modules
 
@@ -28,7 +28,7 @@ et paginées, avec un formulaire d'ajout. Le reste est inchangé.
 
 | Méthode | Chemin | Rôle |
 |---|---|---|
-| `GET` | `/ms-notes/patients/{id}/notes?page=0&size=10` | notes paginées d'un patient |
+| `GET` | `/ms-notes/patients/{id}/notes` | notes d'un patient |
 | `POST` | `/ms-notes/patients/{id}/notes` | ajout d'une note |
 
 Seul le contenu rédigé transite : l'identifiant technique, le patient rattaché et la date

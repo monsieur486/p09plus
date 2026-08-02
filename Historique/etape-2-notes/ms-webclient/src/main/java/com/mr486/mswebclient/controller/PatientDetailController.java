@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -30,12 +29,9 @@ public class PatientDetailController {
     private final NoteApiService noteApiService;
 
     @GetMapping("/dashboard/{id}")
-    public String detail(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int pageNotes,
-            Model model) {
+    public String detail(@PathVariable Long id, Model model) {
         model.addAttribute("patient", patientApiService.recupereLePatient(id));
-        model.addAttribute("pageNotes", noteApiService.listeLesNotes(id, Math.max(pageNotes, 0)));
+        model.addAttribute("notes", noteApiService.listeLesNotes(id));
         model.addAttribute(ATTRIBUT_ID, id);
         return "patient-detail";
     }

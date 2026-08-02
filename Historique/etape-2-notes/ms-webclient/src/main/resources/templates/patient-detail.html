@@ -52,23 +52,19 @@
     <div class="card shadow-sm mt-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span>Notes
-                <span class="badge text-bg-secondary" th:text="${pageNotes.totalElements}">0</span>
+                <span class="badge text-bg-secondary" th:text="${notes.size()}">0</span>
             </span>
             <a class="btn btn-sm btn-primary"
                th:href="@{/app/dashboard/{id}/notes/ajout(id=${patientId})}">Ajouter une note</a>
         </div>
-        <div class="card-body" th:if="${pageNotes.totalElements == 0}">
+        <div class="card-body" th:if="${notes.isEmpty()}">
             <div class="alert alert-warning mb-0">Aucune note pour ce patient.</div>
         </div>
-        <ul class="list-group list-group-flush" th:if="${pageNotes.totalElements > 0}">
-            <li class="list-group-item" th:each="note : ${pageNotes.contenu}"
+        <ul class="list-group list-group-flush" th:unless="${notes.isEmpty()}">
+            <li class="list-group-item" th:each="note : ${notes}"
                 th:text="${note.content}">Contenu de la note
             </li>
         </ul>
-        <div class="card-footer" th:if="${pageNotes.totalPages > 1}">
-            <div th:replace="~{fragments/pagination :: pagination(${pageNotes},
-                 '/app/dashboard/' + ${patientId}, 'pageNotes')}"></div>
-        </div>
     </div>
 </main>
 

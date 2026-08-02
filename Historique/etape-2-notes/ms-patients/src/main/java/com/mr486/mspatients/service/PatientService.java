@@ -5,11 +5,10 @@ import com.mr486.commun.exception.DuplicateException;
 import com.mr486.commun.exception.ResourceNotFoundException;
 import com.mr486.mspatients.model.Patient;
 import com.mr486.mspatients.repository.PatientRepository;
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,8 +17,8 @@ import org.springframework.stereotype.Service;
 public class PatientService {
     private final PatientRepository patientRepository;
 
-    public Page<Patient> findAll(Pageable pagination) {
-        return patientRepository.findAll(pagination);
+    public List<Patient> findAll() {
+        return patientRepository.findAll();
     }
 
     public Patient findById(Long id) {

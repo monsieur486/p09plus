@@ -39,7 +39,7 @@ plus la documentation.
 Depuis un dossier d'étape — ici `Historique/etape-5-complet` :
 
 ```bash
-./prod-start.sh                   # pile complète en conteneurs (build + scale 3 des services métier)
+./prod-start.sh                   # pile complète en conteneurs (build ; réplicas lus dans le .env)
 ./prod-stop.sh                    # arrêt, données conservées
 ./dev-start.sh                    # bases PostgreSQL et MongoDB seules
 ./dev-stop.sh                     # arrêt + suppression des volumes
@@ -54,6 +54,11 @@ Depuis un dossier d'étape — ici `Historique/etape-5-complet` :
 
 En développement local, lancer `ms-eureka` en premier : les clients pointent sur
 `http://localhost:8761/eureka` dans le profil par défaut.
+
+Le nombre d'instances des services métier se règle par `REPLICA_MS_*` dans le `.env`, via
+`deploy.replicas` du `docker-compose.yml` : c'est **Compose** qui lit ce fichier. Ne jamais
+repasser par un `--scale` dans `prod-start.sh` — un shell ne lit pas le `.env`, et les
+valeurs saisies seraient ignorées en silence.
 
 Checkstyle, PMD, SpotBugs et JaCoCo (seuil 80 %) sont configurés dans le `pom.xml` parent et
 lisent `config/` via `${maven.multiModuleProjectDirectory}/config`. Ils sont **indicatifs** :
@@ -136,6 +141,12 @@ uniquement (jamais en dur).
 - `ms-patients` : JPA avec `ddl-auto: validate` — **le schéma n'est jamais généré par
   Hibernate**. Toute modification de l'entité `Patient` exige un nouveau fichier dans
   `src/main/resources/db/changelog/`, référencé depuis `master.xml` (Liquibase).
+- En conteneurs, les migrations Liquibase sont appliquées par le service dédié
+  `ms-patients-migration`, dont les instances de `ms-patients` attendent le succès
+  (`condition: service_completed_successfully`). Liquibase ne protège pas la création de sa
+  propre table d'historique : plusieurs instances lancées ensemble sur une base vierge se
+  la disputent et l'une d'elles meurt. Mongock, lui, pose un verrou — `ms-notes` n'a pas
+  besoin d'un tel préalable.
 - `ms-notes` : MongoDB, migrations par **Mongock** (`@ChangeUnit` du package `dbchangelogs`,
   scanné via `mongock.migration-scan-package`). Le changelog insère les notes de démo si la
   collection est vide.
@@ -172,8 +183,13 @@ doit rester vérifiable sur les 4 patients de fixture.
 ## Pièges connus
 
 - `.env` est ignoré par git ; `dist.env` est le gabarit à copier, dans **chaque étape**.
-- Les `Dockerfile` recopient le module et lancent `mvn clean package -DskipTests` : le build
-  Docker ne détecte pas une régression de test.
+- Les `Dockerfile` lancent `mvn -pl <module> -am package -DskipTests` : le build Docker ne
+  détecte pas une régression de test.
+- Le contexte de build étant la racine de l'étape, chaque `Dockerfile` ne doit recopier que
+  les `pom.xml` des modules **présents dans cette étape** — sinon le build échoue sur un
+  `not found`. C'est le premier point à vérifier en ajoutant une étape.
+- Une étape se valide sans la construire : `docker compose --profile fullstack config`
+  résout le `.env` et signale les erreurs de composition.
 - `ms-webclient` ne s'enregistre pas auprès d'Eureka et ne connaît que `app.gateway.base-url`.
 - Compter environ une minute après `prod-start.sh` avant que la pile réponde : les services
   doivent se déclarer auprès du registre, puis la passerelle rafraîchir son catalogue. Les 404

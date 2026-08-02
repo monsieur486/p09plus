@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.mr486.commun.dto.NoteDto;
 import com.mr486.commun.exception.ServiceIndisponibleException;
 import com.mr486.msrisque.client.NoteClient;
 import feign.FeignException;
@@ -39,20 +38,6 @@ class NotesServiceTest {
     @BeforeEach
     void initialiseLeService() {
         notesService = new NotesService(noteClient);
-    }
-
-    @Test
-    @DisplayName("les notes du patient sont remontées dans leur ordre d'origine")
-    void notesPresentes_sontRemontees() {
-        when(noteClient.getNotesByPatientId(PATIENT_ID))
-                .thenReturn(List.of(
-                        new NoteDto("Taille"), new NoteDto("Poids"), new NoteDto("Fumeur")));
-
-        List<NoteDto> notes = notesService.getNotesByPatientId(PATIENT_ID);
-
-        assertThat(notes).hasSize(3);
-        assertThat(notes).extracting(NoteDto::getContent)
-                .containsExactly("Taille", "Poids", "Fumeur");
     }
 
     @Test

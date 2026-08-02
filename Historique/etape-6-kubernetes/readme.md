@@ -33,7 +33,21 @@ sur le poste : seule l'interface web l'est, par un Ingress.
 ## Prérequis
 
 - Java 17, Docker 24+
-- `minikube` et `kubectl`
+- `minikube` et `kubectl`, le cluster étant borné pour ne pas assécher le poste :
+
+  ```bash
+  minikube start --memory=8g --cpus=8
+  docker update --cpus=8 minikube    # le --cpus ci-dessus n'est pas toujours appliqué
+  ```
+
+  Sans cette limite, minikube voit toute la machine et peut la saturer. Attention, le nœud
+  continue d'**annoncer** la mémoire de l'hôte : l'ordonnanceur croit disposer de plus qu'il
+  n'y a, et c'est le noyau qui tranchera. Rester sous les réplicas déclarés ici est donc un
+  garde-fou, pas une coquetterie.
+
+  La limite processeur se règle à chaud — `docker update --cpus=N minikube` — sans rien
+  détruire, ce qui permet de la chercher par essais. La mémoire, elle, n'est fixée qu'à la
+  création du cluster.
 - Un nom d'hôte pointant vers le cluster, pour joindre l'interface web :
 
   ```bash

@@ -202,6 +202,14 @@ Ce qu'il faut savoir avant d'y toucher :
   et `ms-notes`, 3 pour `ms-risque` qui porte le calcul.
 - L'IHM est le seul objet exposé, par un Ingress sur `p09plus.local` — qui suppose une entrée
   dans `/etc/hosts`. Le reste s'atteint par `kubectl port-forward`.
+- **Le cluster est borné à 8 Gio et 8 cœurs**, sinon il assèche le poste. Le `--cpus` de
+  `minikube start` n'étant pas toujours appliqué, la limite processeur est posée par
+  `docker update --cpus=8 minikube` — à refaire après un `minikube delete`, mais pas après un
+  simple `stop` ; elle se change à chaud, contrairement à la mémoire. Le nœud continue
+  d'annoncer les 16 Gio de l'hôte : l'ordonnanceur raisonne donc sur une mémoire qu'il n'a
+  pas, et c'est le noyau qui arbitre en cas de dépassement. Mesuré sur 1000 requêtes, jamais
+  un échec : 51 s à 8 cœurs, 95 s à 6. La pile 3-3-5 tient aussi ; 5-5-5 porte les `limits`
+  du nœud à 80 %.
 
 ## Conventions du code
 
@@ -221,7 +229,9 @@ Ce qu'il faut savoir avant d'y toucher :
 
 ## Pièges connus
 
-- `.env` est ignoré par git ; `dist.env` est le gabarit à copier, dans **chaque étape**.
+- `.env` est ignoré par git ; `dist.env` est le gabarit à copier, dans **chaque étape sauf
+  la sixième** — celle-ci tire ses identifiants de `k8s/00-secrets.yaml`, et son
+  développement local se contente des valeurs par défaut.
 - Les `Dockerfile` lancent `mvn -pl <module> -am package -DskipTests` : le build Docker ne
   détecte pas une régression de test.
 - Le contexte de build étant la racine de l'étape, chaque `Dockerfile` ne doit recopier que

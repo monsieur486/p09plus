@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documentation du projet — Étape 5 — Version de référence</title>
+    <style>
+:root {
+    color-scheme: light dark;
+    --fond: #ffffff;
+    --fond-carte: #f6f7f9;
+    --bordure: #dfe3e8;
+    --texte: #1c1f23;
+    --texte-doux: #5a6572;
+    --accent: #1f6feb;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --fond: #14171a;
+        --fond-carte: #1d2126;
+        --bordure: #2f353c;
+        --texte: #e8eaed;
+        --texte-doux: #9aa4b0;
+        --accent: #6ea8ff;
+    }
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    padding: 2.5rem 1.25rem 4rem;
+    background: var(--fond);
+    color: var(--texte);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+}
+main { max-width: 60rem; margin: 0 auto; }
+h1 { font-size: 1.75rem; margin: 0 0 .35rem; }
+.sous-titre { color: var(--texte-doux); margin: 0 0 2rem; }
+h2 { font-size: 1.15rem; margin: 2.5rem 0 .75rem; }
+.grille { display: grid; gap: .85rem; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
+.carte {
+    display: block;
+    padding: 1rem 1.1rem;
+    background: var(--fond-carte);
+    border: 1px solid var(--bordure);
+    border-radius: .6rem;
+    text-decoration: none;
+    color: inherit;
+}
+.carte:hover { border-color: var(--accent); }
+.carte-titre { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+.carte-titre strong { color: var(--accent); font-size: 1rem; }
+.port { font-size: .8rem; color: var(--texte-doux); font-variant-numeric: tabular-nums; }
+.role { font-weight: 600; font-size: .9rem; margin: .35rem 0 .2rem; }
+.carte p { margin: 0; font-size: .85rem; color: var(--texte-doux); }
+.encadre {
+    padding: .9rem 1.1rem;
+    border-left: 3px solid var(--accent);
+    background: var(--fond-carte);
+    border-radius: 0 .4rem .4rem 0;
+    font-size: .9rem;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85em; }
+footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--bordure); color: var(--texte-doux); font-size: .85rem; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Documentation du projet</h1>
+    <p class="sous-titre">Étape 5 — Version de référence — Le même code que l'étape 4, commenté et documenté. C'est la version de référence du projet.</p>
+
+    <div class="encadre">
+        Les sites sont produits par <code>./mvnw clean verify site</code>, lancé à la racine de
+        l'étape. Tant que la commande n'a pas été exécutée, les liens ci-dessous pointent vers
+        des fichiers absents : <code>target/</code> n'est pas versionné.
+    </div>
+
+    <h2>Rapport agrégé</h2>
+    <div class="grille">
+        <a class="carte" href="target/site/index.html">
+            <span class="carte-titre"><strong>Projet complet</strong><span class="port">p09plus</span></span>
+            <span class="role">Vue d'ensemble</span>
+            <p>Informations du projet, dépendances et liste des modules.</p>
+        </a>
+    </div>
+
+    <h2>Sites des microservices</h2>
+    <div class="grille">
+            <a class="carte" href="ms-commun/target/site/index.html">
+                <span class="carte-titre"><strong>ms-commun</strong><span class="port">—</span></span>
+                <span class="role">Bibliothèque partagée</span>
+                <p>DTO d'API, exceptions métier, gestionnaire d'erreurs et configurations importées par les autres services.</p>
+            </a>
+            <a class="carte" href="ms-eureka/target/site/index.html">
+                <span class="carte-titre"><strong>ms-eureka</strong><span class="port">8761</span></span>
+                <span class="role">Registre de services</span>
+                <p>Annuaire où chaque service s'enregistre et se découvre. Analyses qualité désactivées : le module ne porte qu'une classe d'amorçage.</p>
+            </a>
+            <a class="carte" href="ms-gateway/target/site/index.html">
+                <span class="carte-titre"><strong>ms-gateway</strong><span class="port">9000</span></span>
+                <span class="role">Passerelle</span>
+                <p>Unique point d'entrée des API. Aucune route déclarée : le routage se déduit du registre. Analyses qualité désactivées.</p>
+            </a>
+            <a class="carte" href="ms-patients/target/site/index.html">
+                <span class="carte-titre"><strong>ms-patients</strong><span class="port">9100</span></span>
+                <span class="role">Fiches patients</span>
+                <p>Gestion des patients sur PostgreSQL, schéma versionné par Liquibase.</p>
+            </a>
+            <a class="carte" href="ms-notes/target/site/index.html">
+                <span class="carte-titre"><strong>ms-notes</strong><span class="port">9200</span></span>
+                <span class="role">Notes de consultation</span>
+                <p>Notes des praticiens sur MongoDB, migrations par Mongock.</p>
+            </a>
+            <a class="carte" href="ms-risque/target/site/index.html">
+                <span class="carte-titre"><strong>ms-risque</strong><span class="port">9300</span></span>
+                <span class="role">Évaluation du risque</span>
+                <p>Cœur métier : compte les termes déclencheurs et croise le total avec l'âge et le genre.</p>
+            </a>
+            <a class="carte" href="ms-webclient/target/site/index.html">
+                <span class="carte-titre"><strong>ms-webclient</strong><span class="port">8080</span></span>
+                <span class="role">Interface web</span>
+                <p>IHM Thymeleaf, seule interface exposée à l'utilisateur.</p>
+            </a>
+    </div>
+
+    <h2>Ce que contient chaque site</h2>
+    <div class="encadre">
+        Code source croisé (JXR) principal et test, Javadoc française, rapports Checkstyle et
+        PMD liés au source, tableau de couverture JaCoCo et résultats Surefire. Les analyses
+        sont <strong>indicatives</strong> : elles n'interrompent pas le build. Le tableau JaCoCo
+        ne mesure que le code qui décide — DTO, entités, configurations, convertisseurs,
+        contrôleurs et classes d'amorçage en sont exclus, un taux ne s'y lit donc pas comme une
+        note.
+    </div>
+
+    <footer>Projet p09plus — Étape 5 — Version de référence</footer>
+</main>
+</body>
+</html>

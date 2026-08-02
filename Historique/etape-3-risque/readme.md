@@ -83,3 +83,9 @@ Projet Maven multi-module : les commandes se lancent **depuis la racine de l'ét
 ./mvnw verify          # compile, teste et produit les rapports qualité
 ./mvnw clean verify site
 ```
+
+Une fois le site produit, ouvrir **`documentation-projet.html`** à la racine de l'étape :
+cette page rassemble les liens vers le rapport agrégé et vers le site de chaque
+microservice (Javadoc, code source croisé, Checkstyle, PMD, couverture, résultats des
+tests). Les liens restent vides tant que la commande n'a pas tourné : `target/` n'est pas
+versionné.

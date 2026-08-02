@@ -74,8 +74,17 @@ l'étape**, pas depuis celle du dépôt.
 ./mvnw -pl ms-risque -Dtest=EvaluationServiceTest#aucunDeclencheur_retourneNone test   # une méthode
 ```
 
+Une fois le site produit, ouvrir **`documentation-projet.html`** à la racine de l'étape :
+cette page rassemble les liens vers le rapport agrégé et vers le site de chaque
+microservice (Javadoc, code source croisé, Checkstyle, PMD, couverture, résultats des
+tests). Les liens restent vides tant que la commande n'a pas tourné : `target/` n'est pas
+versionné.
+
 Les analyses (Checkstyle, PMD, SpotBugs, couverture JaCoCo) sont **indicatives** : elles
-n'interrompent pas le build, mais l'objectif reste zéro violation et 80 % de couverture.
+n'interrompent pas le build. L'objectif est zéro violation ; les 80 % de JaCoCo, eux, ne
+sont qu'un **repère** — la couverture ne porte que sur le code qui décide (DTO, entités,
+configurations, convertisseurs, contrôleurs et classes d'amorçage en sont exclus), et un
+module sans règle métier peut légitimement rester bas.
 Les tests d'intégration démarrent de vraies bases via Testcontainers, Docker doit donc être
 disponible.
 

@@ -187,7 +187,7 @@
                           URL et déléguer au client de la passerelle, lequel est testé. Les
                           mesurer reviendrait à compter des lignes sans décision.
                         -->
-                        <exclude>**/service/*ApiService.class</exclude>
+                        <exclude>**/service/*ApiService*.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -409,6 +409,31 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.plugin.version}</version>
+                <!--
+                  Le bloc <reporting> ne reprend pas la configuration du <build> : sans ces
+                  exclusions, le tableau du site listerait les classes délibérément non
+                  testées (classe de démarrage, DTO, configurations, contrôleurs…) à 0 %,
+                  et donnerait une couverture trompeuse — l'inverse de l'intention.
+                -->
+                <configuration>
+                    <excludes>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/configuration/**</exclude>
+                        <exclude>**/mapper/**</exclude>
+                        <exclude>**/client/**</exclude>
+                        <exclude>**/repository/**</exclude>
+                        <exclude>**/controller/**</exclude>
+                        <exclude>**/dbchangelogs/**</exclude>
+                        <exclude>**/*Application.class</exclude>
+                        <!--
+                          Services d'appel de l'interface web : ils ne font que composer une
+                          URL et déléguer au client de la passerelle, lequel est testé. Les
+                          mesurer reviendrait à compter des lignes sans décision.
+                        -->
+                        <exclude>**/service/*ApiService*.class</exclude>
+                    </excludes>
+                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>

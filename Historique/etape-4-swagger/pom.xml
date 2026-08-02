@@ -149,7 +149,7 @@
                         <exclude>**/controller/**</exclude>
                         <exclude>**/dbchangelogs/**</exclude>
                         <exclude>**/*Application.class</exclude>
-                        <exclude>**/service/*ApiService.class</exclude>
+                        <exclude>**/service/*ApiService*.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -356,6 +356,20 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/configuration/**</exclude>
+                        <exclude>**/mapper/**</exclude>
+                        <exclude>**/client/**</exclude>
+                        <exclude>**/repository/**</exclude>
+                        <exclude>**/controller/**</exclude>
+                        <exclude>**/dbchangelogs/**</exclude>
+                        <exclude>**/*Application.class</exclude>
+                        <exclude>**/service/*ApiService*.class</exclude>
+                    </excludes>
+                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>

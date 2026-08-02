@@ -1,4 +1,7 @@
-# Secrets locaux — JAMAIS commités (le modèle dist.env, lui, est versionné).
+# Secrets locaux — JAMAIS commités. Cette étape ne porte pas de gabarit dist.env : les
+# identifiants du cluster sont dans k8s/00-secrets.yaml, et le développement local se
+# contente des valeurs par défaut de docker-compose.yml et des application.yml. Un .env
+# reste chargé s'il existe, mais rien n'en dépend.
 .env
 
 # Build Maven — régénéré par ./mvnw.

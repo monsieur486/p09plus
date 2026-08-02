@@ -2,13 +2,10 @@ package com.mr486.msrisque.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.mr486.commun.dto.NoteDto;
-import com.mr486.commun.dto.PageDto;
 import com.mr486.commun.exception.ServiceIndisponibleException;
 import com.mr486.msrisque.client.NoteClient;
 import feign.FeignException;
@@ -33,12 +30,11 @@ class NotesServiceTest {
     private NotesService notesService;
 
     @Test
-    @DisplayName("toutes les pages de notes sont parcourues, pas seulement la première")
-    void plusieursPages_sontToutesParcourues() {
-        when(noteClient.getNotesByPatientId(eq(PATIENT_ID), eq(0), anyInt()))
-                .thenReturn(page(List.of(new NoteDto("Taille"), new NoteDto("Poids")), 0, 2));
-        when(noteClient.getNotesByPatientId(eq(PATIENT_ID), eq(1), anyInt()))
-                .thenReturn(page(List.of(new NoteDto("Fumeur")), 1, 2));
+    @DisplayName("les notes du patient sont remontées dans leur ordre d'origine")
+    void notesPresentes_sontRemontees() {
+        when(noteClient.getNotesByPatientId(PATIENT_ID))
+                .thenReturn(List.of(
+                        new NoteDto("Taille"), new NoteDto("Poids"), new NoteDto("Fumeur")));
 
         List<NoteDto> notes = notesService.getNotesByPatientId(PATIENT_ID);
 
@@ -48,19 +44,17 @@ class NotesServiceTest {
     }
 
     @Test
-    @DisplayName("une page unique n'entraîne pas d'appel supplémentaire")
-    void pageUnique_retourneSonContenu() {
-        when(noteClient.getNotesByPatientId(eq(PATIENT_ID), eq(0), anyInt()))
-                .thenReturn(page(List.of(new NoteDto("Vertige")), 0, 1));
+    @DisplayName("un patient sans note retourne une liste vide sans erreur")
+    void aucuneNote_retourneListeVide() {
+        when(noteClient.getNotesByPatientId(PATIENT_ID)).thenReturn(List.of());
 
-        assertThat(notesService.getNotesByPatientId(PATIENT_ID)).hasSize(1);
+        assertThat(notesService.getNotesByPatientId(PATIENT_ID)).isEmpty();
     }
 
     @Test
-    @DisplayName("un patient sans note retourne une liste vide sans erreur")
-    void aucuneNote_retourneListeVide() {
-        when(noteClient.getNotesByPatientId(eq(PATIENT_ID), eq(0), anyInt()))
-                .thenReturn(page(List.of(), 0, 0));
+    @DisplayName("une réponse sans corps retourne une liste vide")
+    void reponseNulle_retourneListeVide() {
+        when(noteClient.getNotesByPatientId(PATIENT_ID)).thenReturn(null);
 
         assertThat(notesService.getNotesByPatientId(PATIENT_ID)).isEmpty();
     }
@@ -68,7 +62,7 @@ class NotesServiceTest {
     @Test
     @DisplayName("un service des notes injoignable devient une indisponibilité de service")
     void serviceInjoignable_leveServiceIndisponible() {
-        when(noteClient.getNotesByPatientId(eq(PATIENT_ID), anyInt(), anyInt()))
+        when(noteClient.getNotesByPatientId(PATIENT_ID))
                 .thenThrow(mock(FeignException.ServiceUnavailable.class));
 
         assertThatThrownBy(() -> notesService.getNotesByPatientId(PATIENT_ID))
@@ -79,19 +73,9 @@ class NotesServiceTest {
     @Test
     @DisplayName("une ressource absente côté service des notes retourne une liste vide")
     void ressourceAbsente_retourneListeVide() {
-        when(noteClient.getNotesByPatientId(eq(PATIENT_ID), anyInt(), anyInt()))
+        when(noteClient.getNotesByPatientId(PATIENT_ID))
                 .thenThrow(mock(FeignException.NotFound.class));
 
         assertThat(notesService.getNotesByPatientId(PATIENT_ID)).isEmpty();
-    }
-
-    private PageDto<NoteDto> page(List<NoteDto> contenu, int numero, int totalDePages) {
-        return PageDto.<NoteDto>builder()
-                .contenu(contenu)
-                .page(numero)
-                .taille(contenu.size())
-                .totalElements(contenu.size())
-                .totalPages(totalDePages)
-                .build();
     }
 }

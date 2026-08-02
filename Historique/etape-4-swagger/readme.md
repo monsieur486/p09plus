@@ -56,11 +56,11 @@ qu'écrit en dur : la classe est partagée telle quelle par les trois modules.
 
 | Méthode | Chemin | Rôle |
 |---|---|---|
-| `GET` | `/ms-patients/patients?page=0&size=10` | liste paginée des patients |
+| `GET` | `/ms-patients/patients` | liste des patients |
 | `GET` | `/ms-patients/patients/{id}` | fiche d'un patient |
 | `POST` | `/ms-patients/patients` | création d'un patient |
 | `PUT` | `/ms-patients/patients/{id}` | mise à jour d'un patient |
-| `GET` | `/ms-notes/patients/{id}/notes?page=0&size=10` | notes paginées d'un patient |
+| `GET` | `/ms-notes/patients/{id}/notes` | notes d'un patient |
 | `POST` | `/ms-notes/patients/{id}/notes` | ajout d'une note |
 | `GET` | `/ms-risque/evaluation/{id}` | niveau de risque d'un patient |
 

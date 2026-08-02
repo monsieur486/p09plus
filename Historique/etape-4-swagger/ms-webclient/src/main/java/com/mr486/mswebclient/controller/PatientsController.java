@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -25,8 +24,8 @@ public class PatientsController {
     private final PatientApiService patientApiService;
 
     @GetMapping("/dashboard")
-    public String dashboard(@RequestParam(defaultValue = "0") int page, Model model) {
-        model.addAttribute("pagePatients", patientApiService.listeLesPatients(Math.max(page, 0)));
+    public String dashboard(Model model) {
+        model.addAttribute("patients", patientApiService.listeLesPatients());
         return "patients";
     }
 

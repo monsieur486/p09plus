@@ -1,10 +1,9 @@
 package com.mr486.mswebclient.service;
 
-import com.mr486.commun.configuration.ConstantesApplication;
-import com.mr486.commun.dto.PageDto;
 import com.mr486.commun.dto.PatientDto;
 import com.mr486.commun.dto.PatientForm;
 import com.mr486.mswebclient.configuration.ConstantesWebclient;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -16,13 +15,12 @@ public class PatientApiService {
 
     private final ClientPasserelle clientPasserelle;
 
-    public PageDto<PatientDto> listeLesPatients(int page) {
+    public List<PatientDto> listeLesPatients() {
         return clientPasserelle.echange(
                 HttpMethod.GET,
-                ConstantesWebclient.CHEMIN_PATIENTS
-                        + "?page=" + page + "&size=" + ConstantesApplication.TAILLE_PAGE_DEFAUT,
+                ConstantesWebclient.CHEMIN_PATIENTS,
                 null,
-                new ParameterizedTypeReference<PageDto<PatientDto>>() {},
+                new ParameterizedTypeReference<List<PatientDto>>() {},
                 ConstantesWebclient.SERVICE_PATIENTS);
     }
 

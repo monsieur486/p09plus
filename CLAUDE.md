@@ -4,7 +4,7 @@ Guide pour Claude Code (claude.ai/code) dans ce dépôt.
 
 ## Structure du dépôt
 
-Le dépôt ne contient pas un projet, mais **sa construction découpée en cinq étapes**, toutes
+Le dépôt ne contient pas un projet, mais **sa construction découpée en six étapes**, toutes
 sous `Historique/`. La racine ne porte que `readme.md` (index des étapes), `.gitignore` et ce
 fichier — **aucun code**.
 
@@ -15,6 +15,7 @@ fichier — **aucun code**.
 | `Historique/etape-3-risque` | évaluation du risque de diabète |
 | `Historique/etape-4-swagger` | documentation OpenAPI des trois API |
 | `Historique/etape-5-complet` | le même code, commenté et documenté — **version de référence** |
+| `Historique/etape-6-kubernetes` | le même projet, déployé sur Kubernetes au lieu de Docker Compose |
 
 Chaque étape est un **projet Maven multi-module autonome** : son propre wrapper (`.mvn`,
 `mvnw`), son `pom.xml` parent, son `docker-compose.yml`, ses scripts, son `config/`. Une
@@ -32,7 +33,8 @@ Deux règles à ne jamais enfreindre :
 L'écart entre deux étapes voisines est exactement ce que la seconde annonce : l'étape 4 est
 l'étape 3 plus Swagger (dépendances `springdoc`, `DocumentationApiConfiguration`,
 annotations des contrôleurs, bloc `springdoc:` de la passerelle) ; l'étape 5 est l'étape 4
-plus la documentation.
+plus la documentation ; l'étape 6 est l'étape 5 déployée autrement — voir la section qui lui
+est consacrée plus bas.
 
 ## Commandes
 
@@ -51,6 +53,10 @@ Depuis un dossier d'étape — ici `Historique/etape-5-complet` :
 ./mvnw -pl ms-risque -Dtest=EvaluationServiceTest test                     # une classe
 ./mvnw -pl ms-risque -Dtest=EvaluationServiceTest#aucunDeclencheur_retourneNone test
 ```
+
+Les commandes Maven valent pour toutes les étapes. Les scripts de déploiement, non :
+l'étape 6 remplace `prod-start.sh` / `prod-stop.sh` / `maj.sh` par `k8s-start.sh` et
+`k8s-stop.sh` (voir sa section plus bas).
 
 En développement local, lancer `ms-eureka` en premier : les clients pointent sur
 `http://localhost:8761/eureka` dans le profil par défaut.
@@ -76,10 +82,12 @@ démarrent de vraies bases par Testcontainers — **Docker doit être disponible
 | ms-notes | 9200 | notes de consultation — MongoDB 8 |
 | ms-risque | 9300 | calcul du niveau de risque |
 
-Toutes les étapes utilisent les mêmes ports et les mêmes noms de conteneurs : n'en faire
-tourner qu'une à la fois.
+Les étapes 1 à 5 utilisent les mêmes ports et les mêmes noms de conteneurs : n'en faire
+tourner qu'une à la fois. L'étape 6 garde ces ports **à l'intérieur du cluster** et n'en
+publie aucun : seule l'IHM est jointe, par l'Ingress `p09plus.local`.
 
-Swagger agrégé (étapes 4 et 5) : `http://localhost:9000/swagger-ui/index.html`.
+Swagger agrégé (étapes 4 et 5) : `http://localhost:9000/swagger-ui/index.html`. À l'étape 6,
+après `kubectl port-forward service/ms-gateway 9000:9000`.
 
 ## Architecture d'une étape
 
@@ -164,6 +172,37 @@ moins grave. Le décompte porte sur **toutes** les notes du patient : un dossier
 partiellement sous-estimerait le risque. C'est le cœur métier du projet : toute modification
 doit rester vérifiable sur les 4 patients de fixture.
 
+## L'étape 6 : Kubernetes
+
+L'étape 6 porte le **même code métier que l'étape 5**, déployé sur un cluster minikube. Elle
+n'a plus ni `prod-start.sh`, ni `prod-stop.sh`, ni `maj.sh` : son `docker-compose.yml` est
+réduit aux deux bases, pour le seul `dev-start.sh`. Le déploiement passe par `./k8s-start.sh`
+et `./k8s-stop.sh` (`--purge` pour effacer les volumes), et les manifestes de `k8s/`.
+
+Ce qu'il faut savoir avant d'y toucher :
+
+- **Les clients Eureka s'annoncent par leur IP** — `eureka.instance.prefer-ip-address: true`
+  dans les `application-docker.yml` de `ms-gateway`, `ms-patients`, `ms-notes` et
+  `ms-risque`. Le DNS d'un cluster ne résout que les Services : une instance enregistrée sous
+  son nom de pod provoque un `SERVFAIL` à chaque appel de la passerelle. **Ne jamais retirer
+  ce réglage.**
+- **Les images sont construites dans le démon Docker de minikube** (`eval "$(minikube
+  docker-env)"`), sous le tag figé `p09plus/<module>:local` et `imagePullPolicy: Never`. Le
+  tag ne changeant jamais, `kubectl apply` ne redéploie rien après une reconstruction :
+  `k8s-start.sh` fait un `rollout restart` des déploiements qui préexistaient.
+- **Le Job de migration est supprimé puis réappliqué** à chaque démarrage : un Job terminé
+  n'est pas rejoué par `apply`, et un changelog Liquibase ajouté depuis resterait lettre
+  morte. Les instances de `ms-patients` attendent son passage par un `initContainer` qui
+  sonde la table d'historique — Kubernetes n'a pas d'équivalent du `depends_on: condition`.
+- **Après un `rollout restart`, le catalogue Eureka garde une à deux minutes les instances
+  disparues** : la passerelle route vers des pods morts et une requête sur *n* échoue en 500.
+  C'est transitoire, il n'y a rien à corriger — le vérifier avant de diagnostiquer un bug.
+- Les identifiants viennent du Secret `k8s/00-secrets.yaml`, pas du `.env` ; le nombre
+  d'instances est écrit dans le champ `replicas` de chaque Deployment — 2 pour `ms-patients`
+  et `ms-notes`, 3 pour `ms-risque` qui porte le calcul.
+- L'IHM est le seul objet exposé, par un Ingress sur `p09plus.local` — qui suppose une entrée
+  dans `/etc/hosts`. Le reste s'atteint par `kubectl port-forward`.
+
 ## Conventions du code
 
 - Indentation **4 espaces**, Lombok partout (`@RequiredArgsConstructor` pour l'injection par
@@ -189,8 +228,13 @@ doit rester vérifiable sur les 4 patients de fixture.
   les `pom.xml` des modules **présents dans cette étape** — sinon le build échoue sur un
   `not found`. C'est le premier point à vérifier en ajoutant une étape.
 - Une étape se valide sans la construire : `docker compose --profile fullstack config`
-  résout le `.env` et signale les erreurs de composition.
+  résout le `.env` et signale les erreurs de composition. À l'étape 6, l'équivalent est
+  `kubectl apply --dry-run=client -f k8s/`.
 - `ms-webclient` ne s'enregistre pas auprès d'Eureka et ne connaît que `app.gateway.base-url`.
 - Compter environ une minute après `prod-start.sh` avant que la pile réponde : les services
   doivent se déclarer auprès du registre, puis la passerelle rafraîchir son catalogue. Les 404
   observés pendant ce laps de temps sont attendus.
+- Les commandes de l'agent tournent sous **zsh**, qui applique les modificateurs d'expansion :
+  `docker build -t "p09plus/$m:local"` produit le tag `p09plus/ms-patientsocal` (`$m:l` = « en
+  minuscules »). Toujours écrire `"p09plus/${m}:local"`. L'erreur est silencieuse — le build
+  réussit et le tag attendu continue de désigner l'image précédente.

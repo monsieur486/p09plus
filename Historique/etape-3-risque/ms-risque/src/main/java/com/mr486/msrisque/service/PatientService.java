@@ -21,7 +21,7 @@ public class PatientService {
             return patientClient.findById(id);
         } catch (FeignException.NotFound ex) {
             log.warn("patient {} introuvable auprès du service des patients", id);
-            throw new ResourceNotFoundException("Aucun patient avec l'id: " + id);
+            throw new ResourceNotFoundException("Aucun patient avec l'id: " + id, ex);
         } catch (FeignException ex) {
             throw new ServiceIndisponibleException(ConstantesRisque.SERVICE_PATIENTS, ex);
         }

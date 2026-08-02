@@ -76,7 +76,7 @@ public class ClientPasserelle {
             return restTemplate.exchange(urlDeLaPasserelle + chemin, methode, requete, type).getBody();
         } catch (HttpClientErrorException.NotFound ex) {
             log.warn("ressource absente sur {} : {} {}", service, methode, chemin);
-            throw new ResourceNotFoundException("La ressource demandée est introuvable.");
+            throw new ResourceNotFoundException("La ressource demandée est introuvable.", ex);
         } catch (RestClientException ex) {
             throw new ServiceIndisponibleException(service, ex);
         }

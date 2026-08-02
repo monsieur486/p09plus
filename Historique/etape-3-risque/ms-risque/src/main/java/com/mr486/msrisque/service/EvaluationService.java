@@ -8,6 +8,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class EvaluationService {
     private int compteDeclencheurs(List<NoteDto> notes) {
         int nombreDeDeclencheurs = 0;
         for (NoteDto note : notes) {
-            String contenu = note.getContent().toLowerCase();
+            String contenu = note.getContent().toLowerCase(Locale.ROOT);
             for (String terme : ConstantesRisque.TERMES_DECLENCHEURS) {
                 if (contenu.contains(terme)) {
                     nombreDeDeclencheurs++;

@@ -34,6 +34,15 @@ public class GestionnaireErreursWeb {
     private static final String MESSAGE_ERREUR_INTERNE =
             "Une erreur inattendue est survenue. L'équipe technique a été informée.";
 
+    /** Nom de l'attribut portant le titre affiché, attendu par la vue d'erreur. */
+    private static final String ATTRIBUT_TITRE = "titre";
+
+    /** Nom de l'attribut portant le message présenté au praticien. */
+    private static final String ATTRIBUT_MESSAGE = "message";
+
+    /** Nom de l'attribut indiquant si l'utilisateur peut réessayer sa demande. */
+    private static final String ATTRIBUT_REESSAYABLE = "reessayable";
+
     /**
      * Affiche une page d'erreur lorsque la ressource demandée n'existe pas.
      *
@@ -48,9 +57,9 @@ public class GestionnaireErreursWeb {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String ressourceIntrouvable(ResourceNotFoundException ex, Model model) {
         log.warn("ressource demandée introuvable : {}", ex.getMessage());
-        model.addAttribute("titre", "Page introuvable");
-        model.addAttribute("message", ex.getMessage());
-        model.addAttribute("reessayable", false);
+        model.addAttribute(ATTRIBUT_TITRE, "Page introuvable");
+        model.addAttribute(ATTRIBUT_MESSAGE, ex.getMessage());
+        model.addAttribute(ATTRIBUT_REESSAYABLE, false);
         return VUE_ERREUR;
     }
 
@@ -69,9 +78,9 @@ public class GestionnaireErreursWeb {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public String serviceIndisponible(ServiceIndisponibleException ex, Model model) {
         log.error("service {} injoignable depuis l'interface web", ex.getServiceAppele(), ex);
-        model.addAttribute("titre", "Service momentanément indisponible");
-        model.addAttribute("message", ex.getMessage());
-        model.addAttribute("reessayable", true);
+        model.addAttribute(ATTRIBUT_TITRE, "Service momentanément indisponible");
+        model.addAttribute(ATTRIBUT_MESSAGE, ex.getMessage());
+        model.addAttribute(ATTRIBUT_REESSAYABLE, true);
         return VUE_ERREUR;
     }
 
@@ -93,9 +102,9 @@ public class GestionnaireErreursWeb {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String ressourceStatiqueIntrouvable(NoResourceFoundException ex, Model model) {
         log.warn("ressource statique absente : {}", ex.getResourcePath());
-        model.addAttribute("titre", "Page introuvable");
-        model.addAttribute("message", "La ressource demandée est introuvable.");
-        model.addAttribute("reessayable", false);
+        model.addAttribute(ATTRIBUT_TITRE, "Page introuvable");
+        model.addAttribute(ATTRIBUT_MESSAGE, "La ressource demandée est introuvable.");
+        model.addAttribute(ATTRIBUT_REESSAYABLE, false);
         return VUE_ERREUR;
     }
 
@@ -113,9 +122,9 @@ public class GestionnaireErreursWeb {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String erreurInattendue(Exception ex, Model model) {
         log.error("erreur inattendue dans l'interface web", ex);
-        model.addAttribute("titre", "Erreur inattendue");
-        model.addAttribute("message", MESSAGE_ERREUR_INTERNE);
-        model.addAttribute("reessayable", false);
+        model.addAttribute(ATTRIBUT_TITRE, "Erreur inattendue");
+        model.addAttribute(ATTRIBUT_MESSAGE, MESSAGE_ERREUR_INTERNE);
+        model.addAttribute(ATTRIBUT_REESSAYABLE, false);
         return VUE_ERREUR;
     }
 }

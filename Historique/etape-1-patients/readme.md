@@ -10,7 +10,7 @@ bibliothèque partagée — pour que les étapes suivantes n'aient qu'à ajouter
 
 ## Ce que fait l'application
 
-Un praticien se connecte, consulte la liste paginée des patients, ouvre une fiche, en crée
+Un praticien se connecte, consulte la liste des patients, ouvre une fiche, en crée
 une nouvelle ou modifie une existante. Un patient est identifié de façon unique par son
 nom, son prénom, sa date de naissance et son genre : deux fiches identiques ne peuvent
 coexister.
@@ -29,7 +29,7 @@ coexister.
 
 | Méthode | Chemin | Rôle |
 |---|---|---|
-| `GET` | `/ms-patients/patients?page=0&size=10` | liste paginée |
+| `GET` | `/ms-patients/patients` | liste des patients |
 | `GET` | `/ms-patients/patients/{id}` | fiche d'un patient |
 | `POST` | `/ms-patients/patients` | création |
 | `PUT` | `/ms-patients/patients/{id}` | mise à jour |

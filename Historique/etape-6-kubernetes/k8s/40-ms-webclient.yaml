@@ -1,0 +1,103 @@
+# Interface web des praticiens, seule porte d'entrée exposée hors du cluster.
+#
+# L'Ingress remplace le port publié de Docker Compose. Il exige l'addon ingress de minikube
+# (activé par k8s-start.sh) et une résolution de p09plus.local vers l'adresse du cluster,
+# à ajouter dans /etc/hosts — voir le readme.
+#
+# Le microservice ne s'enregistre pas auprès du registre : il ne connaît que l'adresse de
+# la passerelle, portée par app.gateway.base-url dans le profil « docker ».
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-webclient
+  labels:
+    app.kubernetes.io/name: ms-webclient
+    app.kubernetes.io/part-of: p09plus
+spec:
+  selector:
+    app.kubernetes.io/name: ms-webclient
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-webclient
+  labels:
+    app.kubernetes.io/name: ms-webclient
+    app.kubernetes.io/part-of: p09plus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ms-webclient
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ms-webclient
+        app.kubernetes.io/part-of: p09plus
+    spec:
+      containers:
+        - name: ms-webclient
+          image: p09plus/ms-webclient:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              memory: 640Mi
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            # Sans consigne, la JVM dimensionne son tas sur la mémoire du nœud et ignore la
+            # limite du conteneur : elle se ferait tuer pour dépassement. Le ramasse-miettes
+            # série coûte moins de mémoire et de fils qu'un G1 sur un si petit tas.
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC"
+          envFrom:
+            - secretRef:
+                name: p09plus-secrets
+          # Spring Boot détecte Kubernetes et expose deux groupes distincts. La readiness
+          # tient compte des dépendances (base, registre) : un pod qui les perd sort du
+          # Service sans être tué.
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 30
+          # La liveness ne juge que l'application elle-même : sans cette distinction, une
+          # base momentanément indisponible ferait redémarrer en cascade tous ses clients.
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ms-webclient
+  labels:
+    app.kubernetes.io/name: ms-webclient
+    app.kubernetes.io/part-of: p09plus
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: p09plus.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ms-webclient
+                port:
+                  number: 8080

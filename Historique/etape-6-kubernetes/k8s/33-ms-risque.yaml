@@ -1,0 +1,83 @@
+# Évaluation du risque — trois instances.
+#
+# Seul service à porter une règle de gestion, et donc le seul dont le coût dépend du
+# volume traité : c'est là qu'on répartit la charge.
+#
+# Ce service n'a pas de base : il interroge ses pairs par OpenFeign, en les résolvant
+# auprès du registre plutôt qu'en passant par la passerelle. Les Services Kubernetes
+# ms-patients et ms-notes n'entrent donc pas en jeu pour ces appels — c'est Eureka qui
+# fournit les adresses des instances.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-risque
+  labels:
+    app.kubernetes.io/name: ms-risque
+    app.kubernetes.io/part-of: p09plus
+spec:
+  selector:
+    app.kubernetes.io/name: ms-risque
+  ports:
+    - name: http
+      port: 9300
+      targetPort: 9300
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-risque
+  labels:
+    app.kubernetes.io/name: ms-risque
+    app.kubernetes.io/part-of: p09plus
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ms-risque
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ms-risque
+        app.kubernetes.io/part-of: p09plus
+    spec:
+      containers:
+        - name: ms-risque
+          image: p09plus/ms-risque:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9300
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              memory: 640Mi
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            # Sans consigne, la JVM dimensionne son tas sur la mémoire du nœud et ignore la
+            # limite du conteneur : elle se ferait tuer pour dépassement. Le ramasse-miettes
+            # série coûte moins de mémoire et de fils qu'un G1 sur un si petit tas.
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC"
+          envFrom:
+            - secretRef:
+                name: p09plus-secrets
+          # Spring Boot détecte Kubernetes et expose deux groupes distincts. La readiness
+          # tient compte des dépendances (base, registre) : un pod qui les perd sort du
+          # Service sans être tué.
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9300
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 30
+          # La liveness ne juge que l'application elle-même : sans cette distinction, une
+          # base momentanément indisponible ferait redémarrer en cascade tous ses clients.
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9300
+            initialDelaySeconds: 60
+            periodSeconds: 15

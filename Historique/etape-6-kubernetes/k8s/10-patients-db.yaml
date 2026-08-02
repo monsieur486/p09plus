@@ -1,0 +1,91 @@
+# Base PostgreSQL des fiches patients.
+#
+# Un StatefulSet plutôt qu'un Deployment : la base a une identité et un disque qui doivent
+# survivre au redémarrage du pod. Le volume est réclamé par volumeClaimTemplates, si bien
+# que les données persistent tant que le PersistentVolumeClaim n'est pas supprimé — d'où
+# l'option --purge de k8s-stop.sh.
+#
+# Le Service porte le nom du service Docker Compose : les applications le résolvent par
+# le même nom d'hôte dans les deux environnements, et le profil « docker » s'applique
+# sans modification.
+apiVersion: v1
+kind: Service
+metadata:
+  name: patients-db
+  labels:
+    app.kubernetes.io/name: patients-db
+    app.kubernetes.io/part-of: p09plus
+spec:
+  # Aucune adresse d'équilibrage : le trafic va directement au pod, ce qu'attend une base.
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: patients-db
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: patients-db
+  labels:
+    app.kubernetes.io/name: patients-db
+    app.kubernetes.io/part-of: p09plus
+spec:
+  serviceName: patients-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: patients-db
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: patients-db
+        app.kubernetes.io/part-of: p09plus
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              memory: 384Mi
+          envFrom:
+            - secretRef:
+                name: p09plus-secrets
+          # pg_isready répond dès que le serveur accepte les connexions : c'est le signal
+          # qu'attendent le Job de migration puis les instances de ms-patients.
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "patient_user", "-d", "patientsdb"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "patient_user", "-d", "patientsdb"]
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          volumeMounts:
+            - name: donnees
+              mountPath: /var/lib/postgresql/data
+              # L'image crée un dossier lost+found à la racine du volume, que PostgreSQL
+              # refuse dans un répertoire de données : on l'isole dans un sous-dossier.
+              subPath: pgdata
+  volumeClaimTemplates:
+    - metadata:
+        name: donnees
+        # Les réclamations nées d'un gabarit n'héritent pas des étiquettes du pod : sans
+        # celles-ci, le --purge de k8s-stop.sh ne saurait pas lesquelles supprimer.
+        labels:
+          app.kubernetes.io/name: patients-db
+          app.kubernetes.io/part-of: p09plus
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

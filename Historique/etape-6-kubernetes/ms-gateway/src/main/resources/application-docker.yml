@@ -1,0 +1,54 @@
+# Passerelle, configuration destinée aux conteneurs : les services sont joints par leur
+# nom de service Docker plutôt que par localhost.
+
+spring:
+  config:
+    # Charge le fichier .env s'il est présent ; son absence n'empêche pas le démarrage.
+    import: optional:file:.env[.properties]
+
+  application:
+    # Nom logique du service, affiché dans les journaux et le registre.
+    name: ms-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              # Crée automatiquement une route par service enregistré : aucune route à écrire.
+              enabled: true
+              # Les noms de services étant en minuscules, les URL le sont aussi.
+              lower-case-service-id: true
+              filters:
+                - name: StripPrefix
+                  args:
+                    # Retire le premier segment (le nom du service) avant de transmettre.
+                    parts: 1
+
+server:
+  # Port d'écoute de la passerelle, seul port d'API exposé aux clients.
+  port: 9000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Ajoute l'inventaire des routes à la supervision, utile pour diagnostiquer le routage.
+        include: health,info,gateway
+
+eureka:
+  instance:
+    # L'instance s'annonce par son adresse IP et non par son nom d'hôte. Sous Kubernetes, le
+    # nom d'hôte d'un pod n'est résolu par aucun DNS — seuls les Services le sont : les
+    # instances enregistrées sous ce nom seraient injoignables, alors que l'IP du pod
+    # l'est directement.
+    prefer-ip-address: true
+  client:
+    service-url:
+      # Adresse du registre, joint par son nom de service.
+      defaultZone: http://ms-eureka:8761/eureka
+    # La passerelle se déclare pour être visible des autres services.
+    registerWithEureka: true
+    # Elle récupère le catalogue : c'est lui qui alimente le routage automatique.
+    fetchRegistry: true

@@ -1,0 +1,107 @@
+# Fiches patients — deux instances.
+#
+# Deux suffisent : ce service ne fait que servir des fiches, la montée en charge se jouant
+# sur ms-risque qui porte le calcul. La seconde instance vaut surtout pour la disponibilité
+# — un pod peut disparaître sans interrompre le service. Le nombre est écrit ici plutôt que
+# lu dans un fichier : kubectl n'a pas d'équivalent du .env de Docker Compose. Pour en
+# changer, modifier `replicas` ci-dessous ou lancer
+# `kubectl scale deployment/ms-patients --replicas=N`.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-patients
+  labels:
+    app.kubernetes.io/name: ms-patients
+    app.kubernetes.io/part-of: p09plus
+spec:
+  selector:
+    app.kubernetes.io/name: ms-patients
+  ports:
+    - name: http
+      port: 9100
+      targetPort: 9100
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-patients
+  labels:
+    app.kubernetes.io/name: ms-patients
+    app.kubernetes.io/part-of: p09plus
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ms-patients
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ms-patients
+        app.kubernetes.io/part-of: p09plus
+    spec:
+      initContainers:
+        # Équivalent du `condition: service_completed_successfully` de Docker Compose, que
+        # Kubernetes ne connaît pas : le pod attend que la table d'historique de Liquibase
+        # existe, preuve que le Job de migration est passé. Sonder la base plutôt que l'API
+        # Kubernetes évite d'accorder au pod le droit de lire les Jobs.
+        - name: attend-migration
+          image: postgres:16
+          command: ["sh", "-c"]
+          args:
+            - |
+              until psql -h patients-db -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+                    -c 'SELECT 1 FROM databasechangelog LIMIT 1' >/dev/null 2>&1; do
+                echo "migration Liquibase pas encore appliquée, nouvelle tentative dans 3 s"
+                sleep 3
+              done
+          env:
+            # psql lit le mot de passe dans cette variable, sans invite interactive.
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: p09plus-secrets
+                  key: POSTGRES_PASSWORD
+          envFrom:
+            - secretRef:
+                name: p09plus-secrets
+      containers:
+        - name: ms-patients
+          image: p09plus/ms-patients:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9100
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              memory: 640Mi
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            # Sans consigne, la JVM dimensionne son tas sur la mémoire du nœud et ignore la
+            # limite du conteneur : elle se ferait tuer pour dépassement. Le ramasse-miettes
+            # série coûte moins de mémoire et de fils qu'un G1 sur un si petit tas.
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC"
+          envFrom:
+            - secretRef:
+                name: p09plus-secrets
+          # Spring Boot détecte Kubernetes et expose deux groupes distincts. La readiness
+          # tient compte des dépendances (base, registre) : un pod qui les perd sort du
+          # Service sans être tué.
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9100
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 30
+          # La liveness ne juge que l'application elle-même : sans cette distinction, une
+          # base momentanément indisponible ferait redémarrer en cascade tous ses clients.
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9100
+            initialDelaySeconds: 60
+            periodSeconds: 15

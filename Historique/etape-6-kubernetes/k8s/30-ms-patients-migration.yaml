@@ -1,0 +1,64 @@
+# Migration Liquibase du schéma des patients, exécutée une fois puis terminée.
+#
+# Sans ce préalable, plusieurs instances de ms-patients démarrant ensemble sur une base
+# vierge créent en même temps la table d'historique de Liquibase, qui ne protège pas cette
+# création : l'une des instances échoue. Le Job joue ici le rôle que tenait le service
+# ms-patients-migration de Docker Compose.
+#
+# Le conteneur reprend l'image applicative, mais démarré sans serveur web ni enregistrement
+# auprès du registre : il applique les changelogs et rend la main.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ms-patients-migration
+  labels:
+    app.kubernetes.io/name: ms-patients-migration
+    app.kubernetes.io/part-of: p09plus
+spec:
+  # Le Job est appliqué à chaque démarrage de la pile : sur une base déjà migrée, Liquibase
+  # constate que les changelogs sont passés et s'arrête sans rien faire.
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ms-patients-migration
+        app.kubernetes.io/part-of: p09plus
+    spec:
+      restartPolicy: Never
+      initContainers:
+        # Liquibase échouerait sur une base qui n'accepte pas encore les connexions.
+        - name: attend-postgres
+          image: postgres:16
+          command: ["sh", "-c"]
+          args:
+            - |
+              until pg_isready -h patients-db -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do
+                echo "base des patients pas encore prête, nouvelle tentative dans 3 s"
+                sleep 3
+              done
+          envFrom:
+            - secretRef:
+                name: p09plus-secrets
+      containers:
+        - name: migration
+          image: p09plus/ms-patients:local
+          imagePullPolicy: Never
+          resources:
+            requests:
+              cpu: 100m
+              memory: 320Mi
+            limits:
+              memory: 512Mi
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC"
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+            # Ni serveur web ni registre : le conteneur migre et s'arrête.
+            - name: SPRING_MAIN_WEB_APPLICATION_TYPE
+              value: none
+            - name: EUREKA_CLIENT_ENABLED
+              value: "false"
+          envFrom:
+            - secretRef:
+                name: p09plus-secrets

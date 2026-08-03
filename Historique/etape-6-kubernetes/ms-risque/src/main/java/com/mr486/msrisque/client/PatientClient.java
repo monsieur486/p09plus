@@ -29,5 +29,5 @@ public interface PatientClient {
      * @return la fiche du patient
      */
     @GetMapping("/patients/{id}")
-    PatientDto findById(@PathVariable("id") Long id);
+    PatientDto findById(final @PathVariable("id") Long id);
 }

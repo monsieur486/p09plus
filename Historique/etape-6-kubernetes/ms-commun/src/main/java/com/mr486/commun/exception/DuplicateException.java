@@ -23,7 +23,7 @@ public class DuplicateException extends RuntimeException {
      *
      * @param message description du conflit détecté
      */
-    public DuplicateException(String message) {
+    public DuplicateException(final String message) {
         super(message);
     }
 }

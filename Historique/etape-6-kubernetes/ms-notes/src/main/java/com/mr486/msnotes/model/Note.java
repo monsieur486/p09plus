@@ -23,6 +23,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+// creedengo demande de rendre ces champs finaux ; c'est impossible ici. Lombok génère un
+// constructeur sans argument et des mutateurs, qu'un champ final interdirait — la classe ne
+// compilerait plus. Le pilote MongoDB peuple d'ailleurs le document par ces mutateurs.
+@SuppressWarnings("creedengo-java:GCI82")
 public class Note {
 
     /** Identifiant technique du document, attribué par la base. */

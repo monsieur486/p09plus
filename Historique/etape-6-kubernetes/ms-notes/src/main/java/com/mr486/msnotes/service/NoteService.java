@@ -37,8 +37,8 @@ public class NoteService {
      * @param patientId identifiant du patient concerné
      * @return les notes du patient, éventuellement vide
      */
-    public List<Note> findByPatientId(Long patientId) {
-        List<Note> notes = noteRepository.findByPatientIdOrderByCreatedDateDesc(patientId);
+    public List<Note> findByPatientId(final Long patientId) {
+        final List<Note> notes = noteRepository.findByPatientIdOrderByCreatedDateDesc(patientId);
         if (notes.isEmpty()) {
             log.debug("aucune note enregistrée pour le patient {}", patientId);
         }
@@ -55,14 +55,14 @@ public class NoteService {
      * @param noteDto   contenu de la note à enregistrer
      * @return la note enregistrée
      */
-    public Note save(Long patientId, NoteDto noteDto) {
-        Note enregistree = noteRepository.save(construitNote(patientId, noteDto));
+    public Note save(final Long patientId, final NoteDto noteDto) {
+        final Note enregistree = noteRepository.save(construitNote(patientId, noteDto));
         log.info("note créée pour le patient {}", patientId);
         return enregistree;
     }
 
     // Assemble la note à persister ; le contenu n'est pas journalisé car il relève du secret médical.
-    private Note construitNote(Long patientId, NoteDto noteDto) {
+    private Note construitNote(final Long patientId, final NoteDto noteDto) {
         log.debug("construction d'une note pour le patient {}", patientId);
         return Note.builder()
                 .patientId(patientId)

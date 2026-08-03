@@ -42,26 +42,26 @@ public class EvaluationService {
      * @param patientId identifiant du patient à évaluer
      * @return le libellé du niveau de risque : None, Borderline, In Danger ou Early onset
      */
-    public String evaluationDuRisque(Long patientId) {
-        PatientDto patient = patientService.getPatientById(patientId);
-        List<NoteDto> notes = notesService.getNotesByPatientId(patientId);
+    public String evaluationDuRisque(final Long patientId) {
+        final PatientDto patient = patientService.getPatientById(patientId);
+        final List<NoteDto> notes = notesService.getNotesByPatientId(patientId);
 
-        int age = calculeAge(patient.getBirthDate());
-        int nombreDeDeclencheurs = compteDeclencheurs(notes);
-        NiveauRisque niveauRisque = determineNiveau(age, patient.getGender(), nombreDeDeclencheurs);
+        final int age = calculeAge(patient.getBirthDate());
+        final int nombreDeDeclencheurs = compteDeclencheurs(notes);
+        final NiveauRisque niveauRisque = determineNiveau(age, patient.getGender(), nombreDeDeclencheurs);
 
         log.info("évaluation du risque calculée pour le patient {}", patientId);
         return niveauRisque.getLibelle();
     }
 
     // Compte les termes déclencheurs présents dans les notes, sans tenir compte de la casse.
-    private int compteDeclencheurs(List<NoteDto> notes) {
+    private int compteDeclencheurs(final List<NoteDto> notes) {
         int nombreDeDeclencheurs = 0;
-        for (NoteDto note : notes) {
-            String contenu = note.getContent().toLowerCase(Locale.ROOT);
-            for (String terme : ConstantesRisque.TERMES_DECLENCHEURS) {
+        for (final NoteDto note : notes) {
+            final String contenu = note.getContent().toLowerCase(Locale.ROOT);
+            for (final String terme : ConstantesRisque.TERMES_DECLENCHEURS) {
                 if (contenu.contains(terme)) {
-                    nombreDeDeclencheurs++;
+                    ++nombreDeDeclencheurs;
                 }
             }
         }
@@ -70,12 +70,12 @@ public class EvaluationService {
     }
 
     // Calcule l'âge en années révolues : un anniversaire non encore passé ne compte pas.
-    private int calculeAge(LocalDate dateDeNaissance) {
+    private int calculeAge(final LocalDate dateDeNaissance) {
         return Period.between(dateDeNaissance, LocalDate.now(horloge)).getYears();
     }
 
     // Aiguille vers les règles applicables selon que le patient a moins de 30 ans ou non.
-    private NiveauRisque determineNiveau(int age, String genre, int nombreDeDeclencheurs) {
+    private NiveauRisque determineNiveau(final int age, final String genre, final int nombreDeDeclencheurs) {
         if (nombreDeDeclencheurs == 0) {
             return NiveauRisque.NONE;
         }
@@ -86,12 +86,12 @@ public class EvaluationService {
     }
 
     // Règles des patients de moins de 30 ans : les seuils diffèrent selon le genre.
-    private NiveauRisque niveauPatientJeune(String genre, int nombreDeDeclencheurs) {
-        boolean masculin = ConstantesRisque.GENRE_MASCULIN.equalsIgnoreCase(genre);
-        int seuilEarlyOnset = masculin
+    private NiveauRisque niveauPatientJeune(final String genre, final int nombreDeDeclencheurs) {
+        final boolean masculin = ConstantesRisque.GENRE_MASCULIN.equalsIgnoreCase(genre);
+        final int seuilEarlyOnset = masculin
                 ? ConstantesRisque.SEUIL_EARLY_ONSET_HOMME_JEUNE
                 : ConstantesRisque.SEUIL_EARLY_ONSET_FEMME_JEUNE;
-        int seuilInDanger = masculin
+        final int seuilInDanger = masculin
                 ? ConstantesRisque.SEUIL_IN_DANGER_HOMME_JEUNE
                 : ConstantesRisque.SEUIL_IN_DANGER_FEMME_JEUNE;
 
@@ -105,7 +105,12 @@ public class EvaluationService {
     }
 
     // Règles des patients de 30 ans et plus : seuls les seuils de déclencheurs comptent.
-    private NiveauRisque niveauPatientTrenteEtPlus(int nombreDeDeclencheurs) {
+    // creedengo propose d'y substituer un switch : impossible ici, les seuils se comparent
+    // avec >= et non par égalité. La cascade décroissante est la traduction directe du
+    // tableau de décision métier, et garantit qu'un décompte plus élevé ne donne jamais un
+    // risque moindre.
+    @SuppressWarnings("creedengo-java:GCI2")
+    private NiveauRisque niveauPatientTrenteEtPlus(final int nombreDeDeclencheurs) {
         if (nombreDeDeclencheurs >= ConstantesRisque.SEUIL_EARLY_ONSET_TRENTE_ET_PLUS) {
             return NiveauRisque.EARLY_ONSET;
         }

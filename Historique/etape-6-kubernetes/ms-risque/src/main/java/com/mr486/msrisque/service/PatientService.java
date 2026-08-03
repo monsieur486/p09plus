@@ -39,13 +39,13 @@ public class PatientService {
      * @throws ResourceNotFoundException    si aucun patient ne porte cet identifiant
      * @throws ServiceIndisponibleException si le microservice des patients ne répond pas
      */
-    public PatientDto getPatientById(Long id) {
+    public PatientDto getPatientById(final Long id) {
         try {
             return patientClient.findById(id);
-        } catch (FeignException.NotFound ex) {
+        } catch (final FeignException.NotFound ex) {
             log.warn("patient {} introuvable auprès du service des patients", id);
             throw new ResourceNotFoundException("Aucun patient avec l'id: " + id, ex);
-        } catch (FeignException ex) {
+        } catch (final FeignException ex) {
             throw new ServiceIndisponibleException(ConstantesRisque.SERVICE_PATIENTS, ex);
         }
     }

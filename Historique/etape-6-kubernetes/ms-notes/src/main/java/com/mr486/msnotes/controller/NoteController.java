@@ -47,7 +47,7 @@ public class NoteController {
      */
     @Tag(name = "Récupère les notes d'un patient")
     @GetMapping(value = "/patients/{patientId}/notes", produces = "application/json")
-    public ResponseEntity<List<NoteDto>> getNotes(@PathVariable Long patientId) {
+    public ResponseEntity<List<NoteDto>> getNotes(final @PathVariable Long patientId) {
         return ResponseEntity.ok(noteMapper.versListeDto(noteService.findByPatientId(patientId)));
     }
 
@@ -65,8 +65,8 @@ public class NoteController {
     @PostMapping(value = "/patients/{patientId}/notes",
             consumes = "application/json", produces = "application/json")
     public ResponseEntity<NoteDto> addNote(
-            @PathVariable Long patientId, @Valid @RequestBody NoteDto noteDto) {
-        NoteDto creee = noteMapper.versDto(noteService.save(patientId, noteDto));
+            final @PathVariable Long patientId, final @Valid @RequestBody NoteDto noteDto) {
+        final NoteDto creee = noteMapper.versDto(noteService.save(patientId, noteDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(creee);
     }
 }

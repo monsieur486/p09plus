@@ -7,6 +7,7 @@ import com.mr486.commun.dto.NoteDto;
 import com.mr486.commun.dto.PatientDto;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class EvaluationServiceTest {
 
     /** Date à laquelle l'horloge de test est figée. */
-    private static final LocalDate DATE_REFERENCE = LocalDate.of(2026, 8, 1);
+    private static final LocalDate DATE_REFERENCE = LocalDate.of(2026, Month.AUGUST, 1);
 
     /** Identifiant du patient utilisé par tous les scénarios. */
     private static final Long PATIENT_ID = 1L;

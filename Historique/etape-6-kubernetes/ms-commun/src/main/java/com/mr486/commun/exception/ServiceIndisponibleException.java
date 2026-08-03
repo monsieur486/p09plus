@@ -31,7 +31,7 @@ public class ServiceIndisponibleException extends RuntimeException {
      * @param serviceAppele nom du microservice qui n'a pas répondu
      * @param cause         erreur technique à l'origine de l'échec, conservée pour le diagnostic
      */
-    public ServiceIndisponibleException(String serviceAppele, Throwable cause) {
+    public ServiceIndisponibleException(String serviceAppele, final Throwable cause) {
         super(String.format(MESSAGE, serviceAppele), cause);
         this.serviceAppele = serviceAppele;
     }

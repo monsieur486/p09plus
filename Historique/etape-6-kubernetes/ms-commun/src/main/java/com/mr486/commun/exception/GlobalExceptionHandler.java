@@ -16,6 +16,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -51,6 +52,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String MESSAGE_ERREUR_INTERNE = "Une erreur interne est survenue.";
 
     /** Nom du microservice, repris dans chaque réponse pour situer l'erreur. */
+    // Non final malgré creedengo : Spring affecte la valeur après avoir construit l'objet,
+    // ce qu'un champ final rendrait impossible.
+    @SuppressWarnings("creedengo-java:GCI82")
     @Value("${spring.application.name:application}")
     private String nomDuMicroservice;
 
@@ -66,7 +70,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleResourceNotFound(
-            ResourceNotFoundException ex, HttpServletRequest requete) {
+            final ResourceNotFoundException ex, final HttpServletRequest requete) {
         return erreurClient(HttpStatus.NOT_FOUND, List.of(ex.getMessage()), requete);
     }
 
@@ -85,7 +89,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(DuplicateException.class)
     public ResponseEntity<Object> handleDuplication(
-            DuplicateException ex, HttpServletRequest requete) {
+            final DuplicateException ex, final HttpServletRequest requete) {
         return erreurClient(HttpStatus.CONFLICT, List.of(ex.getMessage()), requete);
     }
 
@@ -100,9 +104,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @return la réponse 400 normalisée
      */
     @ExceptionHandler(ConstraintViolationException.class)
+    // creedengo vise ici le paramètre de la lambda passée à map. Le rendre final obligerait
+    // à en écrire le type, que le compilateur déduit du flux, pour un gain nul.
+    @SuppressWarnings("creedengo-java:GCI82")
     public ResponseEntity<Object> handleConstraintViolation(
-            ConstraintViolationException ex, HttpServletRequest requete) {
-        List<String> messages = ex.getConstraintViolations().stream()
+            final ConstraintViolationException ex, final HttpServletRequest requete) {
+        final List<String> messages = ex.getConstraintViolations().stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .toList();
         return erreurClient(HttpStatus.BAD_REQUEST, messages, requete);
@@ -124,7 +131,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(ServiceIndisponibleException.class)
     public ResponseEntity<Object> handleServiceIndisponible(
-            ServiceIndisponibleException ex, HttpServletRequest requete) {
+            final ServiceIndisponibleException ex, final HttpServletRequest requete) {
         return erreurServeur(
                 HttpStatus.SERVICE_UNAVAILABLE, List.of(ex.getMessage()), requete, ex);
     }
@@ -141,19 +148,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @return la réponse 500 normalisée
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleAll(Exception ex, HttpServletRequest requete) {
+    public ResponseEntity<Object> handleAll(final Exception ex, final HttpServletRequest requete) {
         return erreurServeur(
                 HttpStatus.INTERNAL_SERVER_ERROR, List.of(MESSAGE_ERREUR_INTERNE), requete, ex);
     }
 
     /** Traduit les erreurs de validation d'un corps de requête annoté {@code @Valid} en 400. */
     @Override
+    // GCI82 vise le paramètre de la lambda passée à forEach : le rendre final obligerait à
+    // en écrire le type, que le compilateur déduit du flux, pour un gain nul.
+    // S2638 réclame un type de retour @Nullable, pour honorer le contrat de la méthode
+    // héritée de Spring. Ce serait mentir sur ce code : il renvoie toujours une réponse.
+    @SuppressWarnings({"creedengo-java:GCI82", "java:S2638"})
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpHeaders enTetes,
-            HttpStatusCode statut, WebRequest webRequest) {
+            final MethodArgumentNotValidException ex, final HttpHeaders enTetes,
+            final HttpStatusCode statut, final WebRequest webRequest) {
 
-        List<String> messages = new ArrayList<>();
-        for (FieldError erreurDeChamp : ex.getBindingResult().getFieldErrors()) {
+        final List<String> messages = new ArrayList<>();
+        for (final FieldError erreurDeChamp : ex.getBindingResult().getFieldErrors()) {
             messages.add(erreurDeChamp.getField() + ": " + erreurDeChamp.getDefaultMessage());
         }
         ex.getBindingResult().getGlobalErrors()
@@ -164,32 +176,36 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /** Traduit l'absence de route correspondant à l'URL appelée en 404. */
     @Override
+    // S2638 réclame un type de retour @Nullable, pour honorer le contrat de la méthode
+    // héritée de Spring. Ce serait mentir sur ce code : il renvoie toujours une réponse.
+    @SuppressWarnings("java:S2638")
     protected ResponseEntity<Object> handleNoHandlerFoundException(
-            NoHandlerFoundException ex, HttpHeaders enTetes, HttpStatusCode statut,
-            WebRequest webRequest) {
+            final NoHandlerFoundException ex, final HttpHeaders enTetes, final HttpStatusCode statut,
+            final WebRequest webRequest) {
 
-        String message = "Route non trouvée: " + ex.getHttpMethod() + " " + ex.getRequestURL();
+        final String message = "Route non trouvée: " + ex.getHttpMethod() + " " + ex.getRequestURL();
         return erreurClient(HttpStatus.NOT_FOUND, List.of(message), requeteDe(webRequest));
     }
 
     // Erreur imputable à l'appelant : le message métier lui est utile, l'incident reste bénin.
     private ResponseEntity<Object> erreurClient(
-            HttpStatus statut, List<String> messages, HttpServletRequest requete) {
+            final HttpStatus statut, final List<String> messages, final HttpServletRequest requete) {
         log.warn("requête refusée ({}) sur {} : {}", statut.value(), requete.getRequestURI(), messages);
         return reponse(statut, messages, requete);
     }
 
     // Erreur imputable au service : l'appelant n'obtient qu'un message générique, la cause est tracée.
     private ResponseEntity<Object> erreurServeur(
-            HttpStatus statut, List<String> messages, HttpServletRequest requete, Exception ex) {
+            final HttpStatus statut, final List<String> messages,
+            final HttpServletRequest requete, final Exception ex) {
         log.error("échec du traitement ({}) sur {}", statut.value(), requete.getRequestURI(), ex);
         return reponse(statut, messages, requete);
     }
 
     // Assemble le corps normalisé renvoyé au client.
     private ResponseEntity<Object> reponse(
-            HttpStatus statut, List<String> messages, HttpServletRequest requete) {
-        ErrorResponse corps = ErrorResponse.builder()
+            final HttpStatus statut, final List<String> messages, final HttpServletRequest requete) {
+        final ErrorResponse corps = ErrorResponse.builder()
                 .timestamp(Instant.now().toString())
                 .path(requete.getRequestURI())
                 .errorCode(statut.name())
@@ -200,7 +216,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // Extrait la requête servlet des handlers hérités, qui reçoivent un WebRequest.
-    private HttpServletRequest requeteDe(WebRequest webRequest) {
-        return (HttpServletRequest) webRequest.resolveReference(WebRequest.REFERENCE_REQUEST);
+    private HttpServletRequest requeteDe(final WebRequest webRequest) {
+        return (HttpServletRequest) webRequest.resolveReference(RequestAttributes.REFERENCE_REQUEST);
     }
 }

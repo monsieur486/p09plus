@@ -41,19 +41,19 @@ public class NotesService {
      * @return les notes du patient, éventuellement vide
      * @throws ServiceIndisponibleException si le microservice des notes ne répond pas
      */
-    public List<NoteDto> getNotesByPatientId(Long patientId) {
+    public List<NoteDto> getNotesByPatientId(final Long patientId) {
         try {
-            List<NoteDto> notes = noteClient.getNotesByPatientId(patientId);
+            final List<NoteDto> notes = noteClient.getNotesByPatientId(patientId);
             if (notes == null) {
                 log.warn("réponse sans corps du service des notes pour le patient {}", patientId);
                 return List.of();
             }
             log.debug("{} note(s) rassemblée(s) pour le patient {}", notes.size(), patientId);
             return notes;
-        } catch (FeignException.NotFound ex) {
+        } catch (final FeignException.NotFound ex) {
             log.warn("aucune note retournée pour le patient {}", patientId);
             return List.of();
-        } catch (FeignException ex) {
+        } catch (final FeignException ex) {
             throw new ServiceIndisponibleException(ConstantesRisque.SERVICE_NOTES, ex);
         }
     }

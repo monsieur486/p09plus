@@ -66,18 +66,18 @@ public class ClientPasserelle {
      * @throws ServiceIndisponibleException si le microservice est injoignable ou en erreur
      */
     public <T> T echange(
-            HttpMethod methode,
-            String chemin,
-            Object corps,
-            ParameterizedTypeReference<T> type,
-            String service) {
+            final HttpMethod methode,
+            final String chemin,
+            final Object corps,
+            final ParameterizedTypeReference<T> type,
+            final String service) {
         try {
-            HttpEntity<Object> requete = corps == null ? null : new HttpEntity<>(corps);
+            final HttpEntity<Object> requete = corps == null ? null : new HttpEntity<>(corps);
             return restTemplate.exchange(urlDeLaPasserelle + chemin, methode, requete, type).getBody();
-        } catch (HttpClientErrorException.NotFound ex) {
+        } catch (final HttpClientErrorException.NotFound ex) {
             log.warn("ressource absente sur {} : {} {}", service, methode, chemin);
             throw new ResourceNotFoundException("La ressource demandée est introuvable.", ex);
-        } catch (RestClientException ex) {
+        } catch (final RestClientException ex) {
             throw new ServiceIndisponibleException(service, ex);
         }
     }

@@ -26,7 +26,7 @@ public class NoteMapper {
      * @param note note issue de la base documentaire
      * @return la représentation exposée par l'API
      */
-    public NoteDto versDto(Note note) {
+    public NoteDto versDto(final Note note) {
         return NoteDto.builder()
                 .content(note.getContent())
                 .build();
@@ -41,7 +41,7 @@ public class NoteMapper {
      * @param notes notes issues de la base documentaire
      * @return les représentations exposées par l'API, dans le même ordre
      */
-    public List<NoteDto> versListeDto(List<Note> notes) {
+    public List<NoteDto> versListeDto(final List<Note> notes) {
         return notes.stream().map(this::versDto).toList();
     }
 }

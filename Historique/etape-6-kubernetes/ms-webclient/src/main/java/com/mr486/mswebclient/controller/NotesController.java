@@ -48,7 +48,7 @@ public class NotesController {
      * @return le nom de la vue du formulaire
      */
     @GetMapping("/dashboard/{patientId}/notes/ajout")
-    public String showCreateNoteForm(@PathVariable Long patientId, Model model) {
+    public String showCreateNoteForm(final @PathVariable Long patientId, final Model model) {
         model.addAttribute("note", new NoteDto());
         model.addAttribute(ATTRIBUT_ID, patientId);
         return VUE_AJOUT;
@@ -69,11 +69,11 @@ public class NotesController {
      */
     @PostMapping("/dashboard/{patientId}/notes")
     public String ajoutNoteSubmit(
-            @PathVariable Long patientId,
-            @Valid @ModelAttribute("note") NoteDto note,
-            BindingResult resultatDeLiaison,
-            Model model,
-            RedirectAttributes redirection) {
+            final @PathVariable Long patientId,
+            final @Valid @ModelAttribute("note") NoteDto note,
+            final BindingResult resultatDeLiaison,
+            final Model model,
+            final RedirectAttributes redirection) {
         if (resultatDeLiaison.hasErrors()) {
             model.addAttribute(ATTRIBUT_ID, patientId);
             return VUE_AJOUT;

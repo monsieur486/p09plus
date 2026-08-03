@@ -30,5 +30,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
      * @return {@code true} si une fiche porte déjà cette identité
      */
     boolean existsByLastNameAndFirstNameAndBirthDateAndGender(
-            String lastName, String firstName, LocalDate birthDate, String gender);
+            final String lastName, final String firstName, final LocalDate birthDate, final String gender);
 }

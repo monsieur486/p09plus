@@ -37,10 +37,14 @@ public class SecuriteApiConfiguration {
     private static final String[] CHEMINS_PUBLICS = {"/actuator/**", "/v3/api-docs/**"};
 
     /** Identifiant du compte de service, injecté depuis la configuration. */
+    // Non final malgré creedengo : Spring affecte la valeur après avoir construit l'objet,
+    // ce qu'un champ final rendrait impossible. Vaut pour les deux champs qui suivent.
+    @SuppressWarnings("creedengo-java:GCI82")
     @Value("${security.app-user.username}")
     private String utilisateur;
 
     /** Mot de passe du compte de service, injecté depuis la configuration. */
+    @SuppressWarnings("creedengo-java:GCI82")
     @Value("${security.app-user.password}")
     private String motDePasse;
 
@@ -55,7 +59,11 @@ public class SecuriteApiConfiguration {
      * @throws Exception si la configuration de la chaîne échoue
      */
     @Bean
-    public SecurityFilterChain filtreDeSecurite(HttpSecurity http) throws Exception {
+    // creedengo vise ici le paramètre des lambdas de configuration. Le rendre final
+    // obligerait à en écrire le type, que le compilateur déduit aujourd'hui : la chaîne de
+    // filtres deviendrait illisible pour un gain nul.
+    @SuppressWarnings("creedengo-java:GCI82")
+    public SecurityFilterChain filtreDeSecurite(final HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requetes -> requetes
@@ -88,7 +96,7 @@ public class SecuriteApiConfiguration {
      * @return le service de consultation des comptes, alimenté en mémoire
      */
     @Bean
-    public UserDetailsService utilisateurs(PasswordEncoder encodeur) {
+    public UserDetailsService utilisateurs(final PasswordEncoder encodeur) {
         return new InMemoryUserDetailsManager(
                 User.withUsername(utilisateur)
                         .password(encodeur.encode(motDePasse))

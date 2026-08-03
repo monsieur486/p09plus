@@ -20,6 +20,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+// creedengo demande de rendre ces champs finaux ; c'est impossible ici. Lombok génère un
+// constructeur sans argument et des mutateurs, qu'un champ final interdirait — la classe ne
+// compilerait plus. La désérialisation JSON exige d'ailleurs ces mêmes mutateurs.
+@SuppressWarnings("creedengo-java:GCI82")
 public class PatientDto {
 
     /** Identifiant technique du patient, attribué par le service de gestion des patients. */

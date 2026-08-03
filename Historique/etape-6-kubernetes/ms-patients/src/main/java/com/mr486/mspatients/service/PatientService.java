@@ -49,7 +49,7 @@ public class PatientService {
      * @return la fiche du patient correspondant
      * @throws ResourceNotFoundException si aucun patient ne porte cet identifiant
      */
-    public Patient findById(Long id) {
+    public Patient findById(final Long id) {
         return patientRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Aucun patient avec l'id: " + id));
@@ -66,12 +66,12 @@ public class PatientService {
      * @return la fiche patient enregistrée
      * @throws DuplicateException si un patient de même identité existe déjà
      */
-    public Patient savePatient(PatientForm patientForm) {
+    public Patient savePatient(final PatientForm patientForm) {
         verifieAbsenceDeDoublon(patientForm);
 
-        Patient patient = new Patient();
+        final Patient patient = new Patient();
         appliqueLeFormulaire(patient, patientForm);
-        Patient enregistre = patientRepository.save(patient);
+        final Patient enregistre = patientRepository.save(patient);
 
         log.info("patient {} créé", enregistre.getId());
         return enregistre;
@@ -94,22 +94,22 @@ public class PatientService {
      * @throws ResourceNotFoundException si aucun patient ne porte cet identifiant
      * @throws DuplicateException        si la nouvelle identité est déjà utilisée
      */
-    public Patient updatePatient(Long id, PatientForm patientForm) {
-        Patient existant = findById(id);
+    public Patient updatePatient(final Long id, final PatientForm patientForm) {
+        final Patient existant = findById(id);
 
         if (identiteModifiee(existant, patientForm)) {
             verifieAbsenceDeDoublon(patientForm);
         }
         appliqueLeFormulaire(existant, patientForm);
-        Patient miseAJour = patientRepository.save(existant);
+        final Patient miseAJour = patientRepository.save(existant);
 
         log.info("patient {} mis à jour", id);
         return miseAJour;
     }
 
     // Lève une DuplicateException si un patient porte déjà l'identité décrite par le formulaire.
-    private void verifieAbsenceDeDoublon(PatientForm patientForm) {
-        boolean existeDeja = patientRepository.existsByLastNameAndFirstNameAndBirthDateAndGender(
+    private void verifieAbsenceDeDoublon(final PatientForm patientForm) {
+        final boolean existeDeja = patientRepository.existsByLastNameAndFirstNameAndBirthDateAndGender(
                 patientForm.getLastName(),
                 patientForm.getFirstName(),
                 patientForm.getBirthDate(),
@@ -122,7 +122,7 @@ public class PatientService {
     }
 
     // Indique si le formulaire change l'un des quatre champs identifiant le patient.
-    private boolean identiteModifiee(Patient existant, PatientForm patientForm) {
+    private boolean identiteModifiee(final Patient existant, final PatientForm patientForm) {
         return !Objects.equals(existant.getLastName(), patientForm.getLastName())
                 || !Objects.equals(existant.getFirstName(), patientForm.getFirstName())
                 || !Objects.equals(existant.getBirthDate(), patientForm.getBirthDate())
@@ -130,7 +130,7 @@ public class PatientService {
     }
 
     // Recopie les valeurs du formulaire sur la fiche patient.
-    private void appliqueLeFormulaire(Patient patient, PatientForm patientForm) {
+    private void appliqueLeFormulaire(final Patient patient, final PatientForm patientForm) {
         patient.setFirstName(patientForm.getFirstName());
         patient.setLastName(patientForm.getLastName());
         patient.setBirthDate(patientForm.getBirthDate());

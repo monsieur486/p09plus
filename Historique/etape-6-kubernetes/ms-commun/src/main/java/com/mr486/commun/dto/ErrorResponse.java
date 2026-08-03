@@ -20,6 +20,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+// creedengo demande de rendre ces champs finaux ; c'est impossible ici. Lombok génère un
+// constructeur sans argument et des mutateurs, qu'un champ final interdirait — la classe ne
+// compilerait plus. L'objet est de toute façon assemblé une fois par le builder, puis lu.
+@SuppressWarnings("creedengo-java:GCI82")
 public class ErrorResponse {
 
     /** Instant de survenue de l'erreur, au format ISO-8601. */

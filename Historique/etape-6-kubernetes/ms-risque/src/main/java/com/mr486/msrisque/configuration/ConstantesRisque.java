@@ -20,6 +20,11 @@ public final class ConstantesRisque {
      * <p>Ils sont écrits en minuscules car la recherche compare le contenu des notes
      * lui aussi passé en minuscules, afin d'être insensible à la casse.</p>
      */
+    // creedengo déconseille les collections statiques, qui retiennent la mémoire et
+    // grossissent sans contrôle. Celle-ci est immuable (List.of), figée à onze entrées par
+    // le cahier des charges, et constitue précisément la constante de domaine que les
+    // conventions du projet imposent d'extraire du code.
+    @SuppressWarnings("creedengo-java:GCI76")
     public static final List<String> TERMES_DECLENCHEURS = List.of(
             "hémoglobine a1c",
             "microalbumine",

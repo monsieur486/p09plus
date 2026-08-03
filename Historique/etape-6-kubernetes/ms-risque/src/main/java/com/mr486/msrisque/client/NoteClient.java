@@ -30,5 +30,5 @@ public interface NoteClient {
      * @return les notes du patient, de la plus récente à la plus ancienne
      */
     @GetMapping("/patients/{id}/notes")
-    List<NoteDto> getNotesByPatientId(@PathVariable Long id);
+    List<NoteDto> getNotesByPatientId(final @PathVariable Long id);
 }

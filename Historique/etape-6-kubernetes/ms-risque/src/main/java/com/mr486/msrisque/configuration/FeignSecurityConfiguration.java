@@ -21,10 +21,14 @@ import org.springframework.context.annotation.Configuration;
 public class FeignSecurityConfiguration {
 
     /** Identifiant du compte de service, injecté depuis la configuration. */
+    // Non final malgré creedengo : Spring affecte la valeur après avoir construit l'objet,
+    // ce qu'un champ final rendrait impossible. Vaut pour les deux champs qui suivent.
+    @SuppressWarnings("creedengo-java:GCI82")
     @Value("${security.app-user.username}")
     private String utilisateur;
 
     /** Mot de passe du compte de service, injecté depuis la configuration. */
+    @SuppressWarnings("creedengo-java:GCI82")
     @Value("${security.app-user.password}")
     private String motDePasse;
 
@@ -37,10 +41,13 @@ public class FeignSecurityConfiguration {
      * @return l'intercepteur ajoutant l'en-tête d'authentification
      */
     @Bean
+    // creedengo vise ici le paramètre de la lambda. Le rendre final obligerait à en écrire
+    // le type, que le compilateur déduit de l'interface fonctionnelle, pour un gain nul.
+    @SuppressWarnings("creedengo-java:GCI82")
     public RequestInterceptor intercepteurAuthentification() {
         return gabarit -> {
-            String identifiants = utilisateur + ":" + motDePasse;
-            String encode = Base64.getEncoder()
+            final String identifiants = utilisateur + ":" + motDePasse;
+            final String encode = Base64.getEncoder()
                     .encodeToString(identifiants.getBytes(StandardCharsets.UTF_8));
             gabarit.header("Authorization", "Basic " + encode);
         };

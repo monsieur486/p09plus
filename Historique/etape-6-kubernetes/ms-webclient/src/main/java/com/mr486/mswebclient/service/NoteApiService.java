@@ -29,7 +29,7 @@ public class NoteApiService {
      * @param patientId identifiant du patient concerné
      * @return les notes du patient
      */
-    public List<NoteDto> listeLesNotes(Long patientId) {
+    public List<NoteDto> listeLesNotes(final Long patientId) {
         return clientPasserelle.echange(
                 HttpMethod.GET,
                 ConstantesWebclient.CHEMIN_NOTES + patientId + "/notes",
@@ -47,7 +47,7 @@ public class NoteApiService {
      * @param note      contenu de la note à ajouter
      * @return la note enregistrée
      */
-    public NoteDto ajouteUneNote(Long patientId, NoteDto note) {
+    public NoteDto ajouteUneNote(final Long patientId, final NoteDto note) {
         return clientPasserelle.echange(
                 HttpMethod.POST,
                 ConstantesWebclient.CHEMIN_NOTES + patientId + "/notes",

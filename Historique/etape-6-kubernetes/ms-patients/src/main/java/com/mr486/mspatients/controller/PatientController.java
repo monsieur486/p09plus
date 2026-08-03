@@ -63,7 +63,7 @@ public class PatientController {
      */
     @Tag(name = "Récupère un patient par son ID")
     @GetMapping(value = "/patients/{id}", produces = "application/json")
-    public ResponseEntity<PatientDto> getPatient(@PathVariable Long id) {
+    public ResponseEntity<PatientDto> getPatient(final @PathVariable Long id) {
         return ResponseEntity.ok(patientMapper.versDto(patientService.findById(id)));
     }
 
@@ -78,8 +78,8 @@ public class PatientController {
      */
     @Tag(name = "Crée un nouveau patient")
     @PostMapping(value = "/patients", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<PatientDto> createPatient(@Valid @RequestBody PatientForm patientForm) {
-        PatientDto cree = patientMapper.versDto(patientService.savePatient(patientForm));
+    public ResponseEntity<PatientDto> createPatient(final @Valid @RequestBody PatientForm patientForm) {
+        final PatientDto cree = patientMapper.versDto(patientService.savePatient(patientForm));
         return ResponseEntity.status(HttpStatus.CREATED).body(cree);
     }
 
@@ -96,7 +96,7 @@ public class PatientController {
     @Tag(name = "Met à jour un patient existant")
     @PutMapping(value = "/patients/{id}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<PatientDto> update(
-            @PathVariable Long id, @Valid @RequestBody PatientForm patientForm) {
+            final @PathVariable Long id, final @Valid @RequestBody PatientForm patientForm) {
         return ResponseEntity.ok(patientMapper.versDto(patientService.updatePatient(id, patientForm)));
     }
 }

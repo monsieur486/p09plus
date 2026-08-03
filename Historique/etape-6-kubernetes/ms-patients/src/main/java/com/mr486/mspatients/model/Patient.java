@@ -28,6 +28,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name = "patients")
+// creedengo demande de rendre ces champs finaux ; c'est impossible pour une entité JPA.
+// Hibernate instancie l'entité par son constructeur sans argument puis affecte les champs,
+// et l'identifiant n'est attribué qu'à l'insertion — un champ final l'en empêcherait.
+@SuppressWarnings("creedengo-java:GCI82")
 public class Patient {
 
     /** Identifiant technique, attribué par la base à l'enregistrement. */

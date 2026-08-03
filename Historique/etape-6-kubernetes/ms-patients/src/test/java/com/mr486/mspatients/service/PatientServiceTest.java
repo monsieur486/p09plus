@@ -1,6 +1,5 @@
 package com.mr486.mspatients.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -14,6 +13,7 @@ import com.mr486.commun.exception.ResourceNotFoundException;
 import com.mr486.mspatients.model.Patient;
 import com.mr486.mspatients.repository.PatientRepository;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +38,7 @@ class PatientServiceTest {
     private static final Long PATIENT_ID = 1L;
 
     /** Date de naissance de référence des jeux d'essai. */
-    private static final LocalDate NAISSANCE = LocalDate.of(1990, 5, 12);
+    private static final LocalDate NAISSANCE = LocalDate.of(1990, Month.MAY, 12);
 
     @Mock
     private PatientRepository patientRepository;
@@ -66,7 +66,9 @@ class PatientServiceTest {
         when(patientRepository.existsByLastNameAndFirstNameAndBirthDateAndGender(
                 anyString(), anyString(), any(LocalDate.class), anyString())).thenReturn(true);
 
-        assertThatThrownBy(() -> patientService.savePatient(unFormulaire()))
+        final PatientForm formulaire = unFormulaire();
+
+        assertThatThrownBy(() -> patientService.savePatient(formulaire))
                 .isInstanceOf(DuplicateException.class);
 
         verify(patientRepository, never()).save(ArgumentMatchers.<Patient>any());
@@ -77,7 +79,9 @@ class PatientServiceTest {
     void updatePatient_inconnu_leveResourceNotFound() {
         when(patientRepository.findById(PATIENT_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> patientService.updatePatient(PATIENT_ID, unFormulaire()))
+        final PatientForm formulaire = unFormulaire();
+
+        assertThatThrownBy(() -> patientService.updatePatient(PATIENT_ID, formulaire))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 

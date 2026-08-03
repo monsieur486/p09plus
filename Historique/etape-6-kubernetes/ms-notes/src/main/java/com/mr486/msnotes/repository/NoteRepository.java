@@ -26,5 +26,5 @@ public interface NoteRepository extends MongoRepository<Note, String> {
      * @param patientId identifiant du patient concerné
      * @return les notes du patient, triées par date d'enregistrement décroissante
      */
-    List<Note> findByPatientIdOrderByCreatedDateDesc(Long patientId);
+    List<Note> findByPatientIdOrderByCreatedDateDesc(final Long patientId);
 }

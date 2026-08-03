@@ -20,6 +20,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+// creedengo demande de rendre ces champs finaux ; c'est impossible ici. Lombok génère un
+// constructeur sans argument et des mutateurs, qu'un champ final interdirait — la classe ne
+// compilerait plus. La désérialisation JSON exige d'ailleurs ces mêmes mutateurs.
+@SuppressWarnings("creedengo-java:GCI82")
 public class NoteDto {
 
     /** Contenu de la note, analysé pour y rechercher les termes déclencheurs. */

@@ -27,7 +27,7 @@ public class EvaluationApiService {
      * @param patientId identifiant du patient à évaluer
      * @return le libellé du niveau de risque
      */
-    public String evalueLeRisque(Long patientId) {
+    public String evalueLeRisque(final Long patientId) {
         return clientPasserelle.echange(
                 HttpMethod.GET,
                 ConstantesWebclient.CHEMIN_EVALUATION + patientId,

@@ -50,7 +50,7 @@ public class PatientApiService {
      * @param id identifiant du patient recherché
      * @return la fiche du patient
      */
-    public PatientDto recupereLePatient(Long id) {
+    public PatientDto recupereLePatient(final Long id) {
         return clientPasserelle.echange(
                 HttpMethod.GET,
                 ConstantesWebclient.CHEMIN_PATIENTS + "/" + id,
@@ -68,7 +68,7 @@ public class PatientApiService {
      * @param formulaire données saisies pour le nouveau patient
      * @return la fiche créée
      */
-    public PatientDto creeLePatient(PatientForm formulaire) {
+    public PatientDto creeLePatient(final PatientForm formulaire) {
         return clientPasserelle.echange(
                 HttpMethod.POST,
                 ConstantesWebclient.CHEMIN_PATIENTS,
@@ -87,7 +87,7 @@ public class PatientApiService {
      * @param formulaire nouvelles données du patient
      * @return la fiche mise à jour
      */
-    public PatientDto metAJourLePatient(Long id, PatientForm formulaire) {
+    public PatientDto metAJourLePatient(final Long id, final PatientForm formulaire) {
         return clientPasserelle.echange(
                 HttpMethod.PUT,
                 ConstantesWebclient.CHEMIN_PATIENTS + "/" + id,

@@ -27,7 +27,7 @@ public class PatientMapper {
      * @param patient fiche patient issue de la base
      * @return la représentation exposée par l'API
      */
-    public PatientDto versDto(Patient patient) {
+    public PatientDto versDto(final Patient patient) {
         return PatientDto.builder()
                 .id(patient.getId())
                 .firstName(patient.getFirstName())
@@ -48,7 +48,7 @@ public class PatientMapper {
      * @param patients fiches patients issues de la base
      * @return les représentations exposées par l'API, dans le même ordre
      */
-    public List<PatientDto> versListeDto(List<Patient> patients) {
+    public List<PatientDto> versListeDto(final List<Patient> patients) {
         return patients.stream().map(this::versDto).toList();
     }
 }

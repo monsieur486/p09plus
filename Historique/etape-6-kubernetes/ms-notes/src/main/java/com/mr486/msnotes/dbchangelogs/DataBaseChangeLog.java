@@ -59,6 +59,10 @@ public class DataBaseChangeLog {
      * <p>Leur rang détermine la date d'enregistrement, donc l'ordre d'affichage : la
      * dernière insérée est la plus récente.</p>
      */
+    // creedengo déconseille les collections statiques, qui retiennent la mémoire et
+    // grossissent sans contrôle. Celle-ci est immuable (List.of) et figée : c'est le jeu de
+    // démonstration, lu une seule fois au premier démarrage.
+    @SuppressWarnings("creedengo-java:GCI76")
     private static final List<NoteDeDemonstration> MODELES = List.of(
             new NoteDeDemonstration(PATIENT_SANS_RISQUE,
                     "Le patient déclare qu'il 'se sent très bien' Poids égal ou inférieur au "
@@ -116,7 +120,7 @@ public class DataBaseChangeLog {
             return;
         }
 
-        List<Document> notes = construitLesNotesDeDemonstration();
+        final List<Document> notes = construitLesNotesDeDemonstration();
         mongoTemplate.getCollection(COLLECTION).insertMany(notes);
         log.info("{} notes de démonstration insérées", notes.size());
     }
@@ -135,9 +139,10 @@ public class DataBaseChangeLog {
 
     // Assemble le jeu de démonstration ; le rang de chaque note décale sa date d'une seconde.
     private List<Document> construitLesNotesDeDemonstration() {
-        LocalDateTime maintenant = LocalDateTime.now();
-        List<Document> notes = new ArrayList<>();
-        for (NoteDeDemonstration modele : MODELES) {
+        // Zone explicite : c'est déjà celle qu'utilise versInstant pour la conversion.
+        final LocalDateTime maintenant = LocalDateTime.now(ZoneId.systemDefault());
+        final List<Document> notes = new ArrayList<>();
+        for (final NoteDeDemonstration modele : MODELES) {
             notes.add(new Document()
                     .append(CHAMP_PATIENT, modele.patientId())
                     .append(CHAMP_CONTENU, modele.contenu())
@@ -147,7 +152,7 @@ public class DataBaseChangeLog {
     }
 
     // Convertit une date locale en instant, type attendu par le pilote MongoDB.
-    private Instant versInstant(LocalDateTime dateHeure) {
+    private Instant versInstant(final LocalDateTime dateHeure) {
         return dateHeure.atZone(ZoneId.systemDefault()).toInstant();
     }
 
@@ -157,6 +162,9 @@ public class DataBaseChangeLog {
      * @param patientId identifiant du patient auquel la note est rattachée
      * @param contenu   texte de la note
      */
+    // Les composants d'un record n'admettent aucun modificateur : ils sont déjà finaux, et
+    // le langage refuse qu'on l'écrive. La remarque de creedengo est ici sans objet.
+    @SuppressWarnings("creedengo-java:GCI82")
     private record NoteDeDemonstration(long patientId, String contenu) {
     }
 }

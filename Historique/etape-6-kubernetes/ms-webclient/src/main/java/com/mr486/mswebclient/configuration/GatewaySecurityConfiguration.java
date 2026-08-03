@@ -31,9 +31,9 @@ public class GatewaySecurityConfiguration {
      */
     @Bean
     public RestTemplate restTemplate(
-            @Value("${app.auth.username}") String utilisateur,
-            @Value("${app.auth.password}") String motDePasse) {
-        RestTemplate client = new RestTemplate();
+            final @Value("${app.auth.username}") String utilisateur,
+            final @Value("${app.auth.password}") String motDePasse) {
+        final RestTemplate client = new RestTemplate();
         client.getInterceptors().add(new BasicAuthenticationInterceptor(utilisateur, motDePasse));
         return client;
     }

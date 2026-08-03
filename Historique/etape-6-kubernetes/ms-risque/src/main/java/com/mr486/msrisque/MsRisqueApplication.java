@@ -35,7 +35,7 @@ public class MsRisqueApplication {
      *
      * @param args arguments de la ligne de commande transmis à Spring Boot
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         SpringApplication.run(MsRisqueApplication.class, args);
     }
 }

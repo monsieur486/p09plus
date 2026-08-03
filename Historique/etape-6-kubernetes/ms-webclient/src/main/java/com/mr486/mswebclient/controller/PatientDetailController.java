@@ -54,7 +54,7 @@ public class PatientDetailController {
      * @return le nom de la vue de détail
      */
     @GetMapping("/dashboard/{id}")
-    public String detail(@PathVariable Long id, Model model) {
+    public String detail(final @PathVariable Long id, final Model model) {
         model.addAttribute("patient", patientApiService.recupereLePatient(id));
         model.addAttribute("evaluation", evaluationApiService.evalueLeRisque(id));
         model.addAttribute("notes", noteApiService.listeLesNotes(id));
@@ -73,7 +73,7 @@ public class PatientDetailController {
      * @return le nom de la vue du formulaire de modification
      */
     @GetMapping("/dashboard/{id}/update")
-    public String updatePatientForm(@PathVariable Long id, Model model) {
+    public String updatePatientForm(final @PathVariable Long id, final Model model) {
         model.addAttribute("patient", versFormulaire(patientApiService.recupereLePatient(id)));
         model.addAttribute(ATTRIBUT_ID, id);
         return VUE_MODIFICATION;
@@ -94,11 +94,11 @@ public class PatientDetailController {
      */
     @PostMapping("/dashboard/{id}/update")
     public String updatePatient(
-            @PathVariable Long id,
-            @Valid @ModelAttribute("patient") PatientForm patient,
-            BindingResult resultatDeLiaison,
-            Model model,
-            RedirectAttributes redirection) {
+            final @PathVariable Long id,
+            final @Valid @ModelAttribute("patient") PatientForm patient,
+            final BindingResult resultatDeLiaison,
+            final Model model,
+            final RedirectAttributes redirection) {
         if (resultatDeLiaison.hasErrors()) {
             model.addAttribute(ATTRIBUT_ID, id);
             return VUE_MODIFICATION;
@@ -110,7 +110,7 @@ public class PatientDetailController {
     }
 
     // Convertit la fiche consultée en formulaire modifiable ; l'identifiant reste porté par l'URL.
-    private PatientForm versFormulaire(PatientDto patient) {
+    private PatientForm versFormulaire(final PatientDto patient) {
         return PatientForm.builder()
                 .firstName(patient.getFirstName())
                 .lastName(patient.getLastName())

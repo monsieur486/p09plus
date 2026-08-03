@@ -24,6 +24,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+// creedengo demande de rendre ces champs finaux ; c'est impossible ici. Lombok génère un
+// constructeur sans argument et des mutateurs, qu'un champ final interdirait — la classe ne
+// compilerait plus. Spring en a besoin pour lier les champs du formulaire un à un.
+@SuppressWarnings("creedengo-java:GCI82")
 public class PatientForm {
 
     /** Prénom du patient, obligatoire. */

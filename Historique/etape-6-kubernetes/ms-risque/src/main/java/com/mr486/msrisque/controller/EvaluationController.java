@@ -40,7 +40,7 @@ public class EvaluationController {
      */
     @Tag(name = "Évalue le risque de diabète d'un patient par son ID")
     @GetMapping(value = "/evaluation/{patientId}", produces = "text/plain")
-    public ResponseEntity<String> evaluate(@PathVariable Long patientId) {
+    public ResponseEntity<String> evaluate(final @PathVariable Long patientId) {
         return ResponseEntity.ok(evaluationService.evaluationDuRisque(patientId));
     }
 }

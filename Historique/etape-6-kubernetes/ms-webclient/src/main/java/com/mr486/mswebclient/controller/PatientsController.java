@@ -41,7 +41,7 @@ public class PatientsController {
      * @return le nom de la vue listant les patients
      */
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(final Model model) {
         model.addAttribute("patients", patientApiService.listeLesPatients());
         return "patients";
     }
@@ -55,7 +55,7 @@ public class PatientsController {
      * @return le nom de la vue du formulaire
      */
     @GetMapping("/dashboard/ajout")
-    public String showCreatePatientForm(Model model) {
+    public String showCreatePatientForm(final Model model) {
         model.addAttribute("patient", new PatientForm());
         return VUE_AJOUT;
     }
@@ -73,9 +73,9 @@ public class PatientsController {
      */
     @PostMapping("/dashboard/ajout")
     public String ajoutPatientSubmit(
-            @Valid @ModelAttribute("patient") PatientForm patient,
-            BindingResult resultatDeLiaison,
-            RedirectAttributes redirection) {
+            final @Valid @ModelAttribute("patient") PatientForm patient,
+            final BindingResult resultatDeLiaison,
+            final RedirectAttributes redirection) {
         if (resultatDeLiaison.hasErrors()) {
             return VUE_AJOUT;
         }

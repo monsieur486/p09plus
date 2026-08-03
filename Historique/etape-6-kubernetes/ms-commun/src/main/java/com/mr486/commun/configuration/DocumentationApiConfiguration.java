@@ -30,6 +30,9 @@ import org.springframework.context.annotation.Configuration;
 public class DocumentationApiConfiguration {
 
     /** Nom du microservice, qui sert aussi de préfixe de routage à la passerelle. */
+    // Non final malgré creedengo : Spring affecte la valeur après avoir construit l'objet,
+    // ce qu'un champ final rendrait impossible.
+    @SuppressWarnings("creedengo-java:GCI82")
     @Value("${spring.application.name:application}")
     private String nomDuMicroservice;
 

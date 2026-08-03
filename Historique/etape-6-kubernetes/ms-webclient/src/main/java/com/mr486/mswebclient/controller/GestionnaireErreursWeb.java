@@ -55,7 +55,7 @@ public class GestionnaireErreursWeb {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String ressourceIntrouvable(ResourceNotFoundException ex, Model model) {
+    public String ressourceIntrouvable(final ResourceNotFoundException ex, final Model model) {
         log.warn("ressource demandée introuvable : {}", ex.getMessage());
         model.addAttribute(ATTRIBUT_TITRE, "Page introuvable");
         model.addAttribute(ATTRIBUT_MESSAGE, ex.getMessage());
@@ -76,7 +76,7 @@ public class GestionnaireErreursWeb {
      */
     @ExceptionHandler(ServiceIndisponibleException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    public String serviceIndisponible(ServiceIndisponibleException ex, Model model) {
+    public String serviceIndisponible(final ServiceIndisponibleException ex, final Model model) {
         log.error("service {} injoignable depuis l'interface web", ex.getServiceAppele(), ex);
         model.addAttribute(ATTRIBUT_TITRE, "Service momentanément indisponible");
         model.addAttribute(ATTRIBUT_MESSAGE, ex.getMessage());
@@ -100,7 +100,7 @@ public class GestionnaireErreursWeb {
      */
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String ressourceStatiqueIntrouvable(NoResourceFoundException ex, Model model) {
+    public String ressourceStatiqueIntrouvable(final NoResourceFoundException ex, final Model model) {
         log.warn("ressource statique absente : {}", ex.getResourcePath());
         model.addAttribute(ATTRIBUT_TITRE, "Page introuvable");
         model.addAttribute(ATTRIBUT_MESSAGE, "La ressource demandée est introuvable.");
@@ -120,7 +120,7 @@ public class GestionnaireErreursWeb {
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String erreurInattendue(Exception ex, Model model) {
+    public String erreurInattendue(final Exception ex, final Model model) {
         log.error("erreur inattendue dans l'interface web", ex);
         model.addAttribute(ATTRIBUT_TITRE, "Erreur inattendue");
         model.addAttribute(ATTRIBUT_MESSAGE, MESSAGE_ERREUR_INTERNE);

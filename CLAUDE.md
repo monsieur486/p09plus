@@ -30,6 +30,12 @@ Deux règles à ne jamais enfreindre :
    existe** : dépouillée dans les étapes 1 à 4, documentée dans l'étape 5. Les étapes sont
    des copies, pas des branches — rien ne les synchronise automatiquement.
 
+   **Une exception assumée, décidée le 3 août 2026** : les corrections issues de l'analyse
+   creedengo (le `final` posé sur 147 déclarations, et les correctifs Sonar qui les
+   accompagnent) n'existent que dans l'étape 6. Le code métier des étapes 1 à 5 en diverge
+   donc volontairement. Ne pas « réaligner » les étapes sans demander : l'écart est voulu,
+   pas un oubli.
+
 L'écart entre deux étapes voisines est exactement ce que la seconde annonce : l'étape 4 est
 l'étape 3 plus Swagger (dépendances `springdoc`, `DocumentationApiConfiguration`,
 annotations des contrôleurs, bloc `springdoc:` de la passerelle) ; l'étape 5 est l'étape 4
@@ -56,7 +62,7 @@ Depuis un dossier d'étape — ici `Historique/etape-5-complet` :
 
 Les commandes Maven valent pour toutes les étapes. Les scripts de déploiement, non :
 l'étape 6 remplace `prod-start.sh` / `prod-stop.sh` / `maj.sh` par `k8s-start.sh` et
-`k8s-stop.sh` (voir sa section plus bas).
+`k8s-stop.sh`, et lui seule porte `sonar-scan.sh` (voir sa section plus bas).
 
 En développement local, lancer `ms-eureka` en premier : les clients pointent sur
 `http://localhost:8761/eureka` dans le profil par défaut.
@@ -85,6 +91,9 @@ démarrent de vraies bases par Testcontainers — **Docker doit être disponible
 Les étapes 1 à 5 utilisent les mêmes ports et les mêmes noms de conteneurs : n'en faire
 tourner qu'une à la fois. L'étape 6 garde ces ports **à l'intérieur du cluster** et n'en
 publie aucun : seule l'IHM est jointe, par l'Ingress `p09plus.local`.
+
+Hors application, l'étape 6 publie en développement un serveur **SonarQube sur 9001** — pas
+9000, déjà pris par la passerelle en local.
 
 Swagger agrégé (étapes 4 et 5) : `http://localhost:9000/swagger-ui/index.html`. À l'étape 6,
 après `kubectl port-forward service/ms-gateway 9000:9000`.
@@ -176,8 +185,9 @@ doit rester vérifiable sur les 4 patients de fixture.
 
 L'étape 6 porte le **même code métier que l'étape 5**, déployé sur un cluster minikube. Elle
 n'a plus ni `prod-start.sh`, ni `prod-stop.sh`, ni `maj.sh` : son `docker-compose.yml` est
-réduit aux deux bases, pour le seul `dev-start.sh`. Le déploiement passe par `./k8s-start.sh`
-et `./k8s-stop.sh` (`--purge` pour effacer les volumes), et les manifestes de `k8s/`.
+réduit aux deux bases et au serveur d'analyse, pour le seul `dev-start.sh`. Le déploiement
+passe par `./k8s-start.sh` et `./k8s-stop.sh` (`--purge` pour effacer les volumes), et les
+manifestes de `k8s/`.
 
 Ce qu'il faut savoir avant d'y toucher :
 
@@ -244,6 +254,14 @@ Ce qu'il faut savoir avant d'y toucher :
 - Compter environ une minute après `prod-start.sh` avant que la pile réponde : les services
   doivent se déclarer auprès du registre, puis la passerelle rafraîchir son catalogue. Les 404
   observés pendant ce laps de temps sont attendus.
+- **Les règles creedengo ne figurent dans aucun profil qualité livré par SonarQube.** Sans
+  le profil « creedengo way » que crée `sonar-scan.sh` (hérité de « Sonar way », complété du
+  dépôt `creedengo-java`, promu par défaut), l'analyse se déroule normalement et ne remonte
+  pas une seule remarque d'écoconception — l'absence de résultat ressemble alors à un code
+  irréprochable. Autres pièges de la mise en service : le tag de l'image Community Build
+  porte le numéro de construction (`26.6.0.123539-community`, et non `26.6.0-community`), et
+  le mot de passe administrateur doit satisfaire la politique du serveur (majuscule, chiffre,
+  longueur), faute de quoi l'API répond 400 sans que rien d'autre échoue.
 - Les commandes de l'agent tournent sous **zsh**, qui applique les modificateurs d'expansion :
   `docker build -t "p09plus/$m:local"` produit le tag `p09plus/ms-patientsocal` (`$m:l` = « en
   minuscules »). Toujours écrire `"p09plus/${m}:local"`. L'erreur est silencieuse — le build

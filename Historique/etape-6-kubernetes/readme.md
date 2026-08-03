@@ -87,14 +87,14 @@ En développement, on ne conteneurise que les bases ; les applications tournent 
 du cluster :
 
 ```bash
-./dev-start.sh                          # bases PostgreSQL et MongoDB seules
+./dev-start.sh                          # bases PostgreSQL et MongoDB, et SonarQube
 ./mvnw -pl ms-eureka spring-boot:run    # registre à démarrer en premier
 ./mvnw -pl ms-patients -am spring-boot:run
 ./dev-stop.sh                           # arrêt, données conservées
 ```
 
 C'est le seul usage qui reste à Docker Compose dans cette étape : `docker-compose.yml` ne
-décrit plus que les deux bases.
+décrit plus que les deux bases et le serveur d'analyse.
 
 ## Ce que Kubernetes change
 
@@ -180,6 +180,87 @@ configurations, convertisseurs, contrôleurs et classes d'amorçage en sont excl
 module sans règle métier peut légitimement rester bas.
 Les tests d'intégration démarrent de vraies bases via Testcontainers, Docker doit donc être
 disponible.
+
+## Analyse écologique du code
+
+Cette étape ajoute un serveur **SonarQube** doté des règles **creedengo** (Green Code
+Initiative, ex-ecoCode), qui repèrent les tournures de code coûteuses en énergie ou en
+ressources. C'est un outil de fabrication : il tourne en développement, avec les bases, et
+n'a aucune place dans le cluster.
+
+```bash
+./dev-start.sh      # démarre aussi SonarQube — comptez une minute
+./sonar-scan.sh     # prépare le serveur au premier passage, puis analyse
+```
+
+`sonar-scan.sh` est relançable sans effet de bord. Au premier passage il pose ce dont le
+serveur a besoin : mot de passe administrateur, jeton d'analyse conservé dans `.sonar-token`
+(ignoré par git), et surtout le profil de règles **« creedengo way »** — hérité de « Sonar
+way », complété des règles du dépôt `creedengo-java` et promu profil par défaut du langage.
+Cette dernière étape n'est pas facultative : **les règles creedengo ne figurent dans aucun
+profil livré**, et sans elle l'analyse se déroule sans remonter la moindre remarque
+d'écoconception.
+
+Le rapport s'ouvre ensuite sur <http://localhost:9001> (le port 9000 étant déjà pris par la
+passerelle en développement local). Identifiants `admin` / `P09plus-Sonar1`.
+
+Attention à la couverture qu'il affiche : **SonarQube ignore les exclusions déclarées pour
+JaCoCo** dans le `pom.xml` et rapporte donc un pourcentage sensiblement plus bas (29,9 %
+contre le calcul Maven). Les deux chiffres ne mesurent pas la même chose — celui de Maven ne
+porte que sur le code qui décide, celui de SonarQube sur tout le code. Se fier au premier.
+
+Deux points à connaître :
+
+- SonarQube embarque Elasticsearch, qui exige `vm.max_map_count ≥ 524288`. `dev-start.sh`
+  vérifie le réglage et affiche la commande à passer s'il est insuffisant.
+- Les versions de l'image et du greffon sont liées : creedengo 2.2.0 couvre SonarQube 26.1
+  à 26.6, d'où le tag figé dans `sonar/Dockerfile`. Ne monter l'une sans vérifier l'autre.
+
+Les remarques d'écoconception ne sont pas des ordres : chacune est arbitrée plutôt que subie.
+La première analyse en a donné 205. Après corrections du code et neutralisation motivée des
+52 restantes, **le rapport est à zéro remontée** — un état qui a du sens, puisqu'une nouvelle
+remarque y sera immédiatement visible. Voici le détail.
+
+| Règle | Occ. | Traitement |
+|---|---|---|
+| `GCI82` — variable jamais réassignée | 192 puis 31 | `final` posé sur **178** en trois passes ; 47 neutralisées, voir plus bas |
+| `GCI76` — collections statiques | 2 | **neutralisées** : `List.of(…)` immuables, la règle vise les collections mutables |
+| `GCI67` — `++i` plutôt que `i++` | 1 | appliquée dans `EvaluationService` |
+| `GCI2` — cascade de `if-else` | 1 | **neutralisée** : les seuils se comparent avec `>=`, qu'un `switch` n'exprime pas |
+
+**Toute remarque écartée est neutralisée dans le code, jamais dans le tableau de bord.** Le
+mécanisme est `@SuppressWarnings("<dépôt>:<règle>")` — par exemple
+`@SuppressWarnings("creedengo-java:GCI82")` — surmonté du commentaire qui dit *pourquoi*.
+Deux raisons de préférer cela à un « Accepté » posé dans l'IHM de SonarQube : la
+justification vit dans le fichier, sous les yeux de qui lira le code ; et elle est versionnée,
+donc elle survit à la purge du volume Docker.
+
+L'annotation est posée **au plus près** : sur la classe quand tous ses champs sont concernés
+(les DTO), sur le champ pour un `@Value` isolé, sur la méthode pour un paramètre de lambda.
+Annoter la classe entière masquerait les occurrences futures, légitimes celles-là.
+
+Les GCI82 écartées le sont pour une raison technique, non par choix :
+
+- **38 champs** — les DTO sont des classes Lombok `@Data @Builder @NoArgsConstructor`, où un
+  champ `final` non initialisé ne compile pas, et les champs `@Value` doivent rester
+  assignables pour que Spring les injecte ;
+- **7 paramètres de lambda**, où `final` impose d'expliciter le type et défigure les
+  configurations de sécurité ;
+- **2 composants de `record`**, qui n'admettent aucun modificateur — ils sont déjà finaux.
+
+**GCI82 remonte par vagues, il faut donc itérer.** La règle ne signale pas tout d'un coup :
+dès qu'un paramètre d'une signature reçoit `final`, elle signale au passage suivant les
+autres paramètres de la même signature. Ici 192, puis 23, puis 8 — trois passes avant que le
+rapport ne bouge plus. Corriger puis relancer l'analyse est la seule façon d'atteindre ce
+point fixe ; une passe unique laisse des méthodes à moitié annotées.
+
+L'analyse remonte aussi les règles « Sonar way » héritées. Ont été corrigés : un import
+inutilisé, un `LocalDateTime.now()` sans zone explicite, un accès à une constante par une
+sous-interface, deux littéraux de mois remplacés par `java.time.Month` et deux lambdas
+d'assertion ramenées à un seul appel susceptible de lever. Deux `S2638` sont neutralisées,
+sur le type de retour des gestionnaires hérités de `ResponseEntityExceptionHandler` : les
+annoter `@Nullable` satisferait le contrat de Spring mais décrirait faussement notre code,
+qui ne renvoie jamais `null`.
 
 ## Accès
 

@@ -4,8 +4,13 @@
 # reste chargé s'il existe, mais rien n'en dépend.
 .env
 
+# Jeton d'analyse SonarQube, régénéré par sonar-scan.sh — propre au poste, jamais commité.
+.sonar-token
+
 # Build Maven — régénéré par ./mvnw.
 target/
+# Fichier de travail du scanner SonarQube.
+.scannerwork/
 
 # IDE
 .idea/

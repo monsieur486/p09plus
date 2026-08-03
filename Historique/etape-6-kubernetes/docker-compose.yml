@@ -1,8 +1,12 @@
-# Dépendances du développement local — les bases de données, et rien d'autre.
+# Dépendances du développement local — les bases de données et le serveur d'analyse.
 #
 # Le déploiement de cette étape se fait sur Kubernetes (dossier k8s/) : les microservices
 # ne sont plus décrits ici. Ce fichier ne sert qu'à `dev-start.sh`, qui lève les deux bases
 # pour que les applications puissent tourner depuis l'IDE ou `./mvnw spring-boot:run`.
+#
+# S'y ajoute SonarQube, qui n'est pas un composant de l'application mais un outil de
+# fabrication : il mesure le code, il ne le sert pas. Sa place est donc ici, et non dans les
+# manifestes du cluster.
 services:
 
   patients-db:
@@ -28,6 +32,26 @@ services:
     volumes:
       - database-data:/data/db
 
+  # Analyse de la qualité et de l'empreinte écologique du code (règles creedengo).
+  # L'image est construite depuis sonar/Dockerfile, qui greffe les règles sur l'image
+  # officielle ; `docker compose build sonarqube` suffit à la reconstruire.
+  sonarqube:
+    build: ./sonar
+    container_name: sonarqube
+    ports:
+      # 9000 est déjà pris par ms-gateway en développement local : le serveur est publié
+      # sur 9001 côté poste, tout en gardant son port habituel dans le conteneur.
+      - "9001:9000"
+    volumes:
+      # Base H2 embarquée, index de recherche et rapports : tout ce qui doit survivre à un
+      # redémarrage. Le dossier des extensions, lui, n'est délibérément pas persisté — un
+      # volume y figerait la version du greffon livrée par l'image, et une montée de
+      # version resterait sans effet.
+      - sonar_data:/opt/sonarqube/data
+      - sonar_logs:/opt/sonarqube/logs
+
 volumes:
   db_data:
   database-data:
+  sonar_data:
+  sonar_logs:

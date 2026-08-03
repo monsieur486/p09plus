@@ -58,6 +58,20 @@
         <!-- Seuil de couverture des lignes visé par JaCoCo (contrôle non bloquant). -->
         <jacoco.couverture.minimale>0.80</jacoco.couverture.minimale>
 
+        <!--
+          Analyse SonarQube (règles creedengo d'écoconception), lancée par ./sonar-scan.sh.
+          La clé porte le numéro de l'étape : les étapes partagent le même artefact Maven et
+          se confondraient dans un même projet SonarQube.
+        -->
+        <sonar.projectKey>p09plus-etape6</sonar.projectKey>
+        <sonar.projectName>p09plus — étape 6 (Kubernetes)</sonar.projectName>
+        <!--
+          Chemin du rapport de couverture. Sans lui, SonarQube annonce 0 % : il ne devine pas
+          l'emplacement du fichier produit par JaCoCo, et l'agrégation multi-module impose de
+          désigner le rapport de chaque module.
+        -->
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
         <!-- Versions des outils d'analyse et de génération du site. -->
         <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
@@ -70,6 +84,7 @@
         <javadoc.plugin.version>3.11.2</javadoc.plugin.version>
         <project-info.plugin.version>3.9.0</project-info.plugin.version>
         <surefire-report.plugin.version>3.5.4</surefire-report.plugin.version>
+        <sonar.plugin.version>5.1.0.4751</sonar.plugin.version>
     </properties>
 
     <!--
@@ -342,6 +357,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>${site.plugin.version}</version>
+            </plugin>
+
+            <!--
+              Analyseur SonarQube, déclaré sans exécution : il n'entre dans aucune phase et
+              ne s'invoque qu'à la demande, par ./sonar-scan.sh. Le déclarer ici plutôt que
+              dans pluginManagement est ce qui permet d'écrire `sonar:sonar` — Maven ne
+              résout un préfixe abrégé que depuis les plugins du projet, et le groupe de
+              SonarSource ne fait pas partie de ceux qu'il consulte d'office.
+            -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar.plugin.version}</version>
             </plugin>
         </plugins>
     </build>
